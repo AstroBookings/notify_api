@@ -1,0 +1,12 @@
+Feature: Send launch-related notifications to agencies
+  As an agency, I want to receive notifications about launch-related events, so that I can stay informed about the status of my launches.
+
+  Scenario: Send a notification about a launch status change
+    Given the API is available
+    When the system sends a POST request to "/api/notification/" with the following data:
+      | event |  data |
+      | "newBooking" |  { launch_id: 1, booking_id: 1 } |
+    Then the response should have a status code of 200
+    And the notification data to be sent to the agency
+        | recipient_email | subject | message |
+        | "agency@example.com" | "New booking for launch" | "You have a new booking for launch 1" |

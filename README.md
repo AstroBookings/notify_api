@@ -1,85 +1,73 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# 🚀 AstroBookings: 🧑‍💼 NotifyAPI
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## [🚀 AstroBookings](https://github.com/AstroBookings)
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+> A sample project for teaching full-stack development with modern technology and proven best practices.
 
-## Description
+> 📋 [0. Project Summary Briefing](https://github.com/AstroBookings/.github/blob/main/profile/0-project.briefing.md)
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+> 📋 [2. System Architecture](https://github.com/AstroBookings/.github/blob/main/profile/2-design/2-system.architecture.md)
 
-## Project setup
+> 📋 [3. Model ERD](https://github.com/AstroBookings/.github/blob/main/profile/2-design/3-model.erd.md)
 
-```bash
-$ npm install
+## 🧑‍💼 NotifyAPI
+
+Manages the notification system for the entire platform, handling email notifications for various events such as booking confirmations, launch updates, and system alerts. This API coordinates the creation, queuing, and sending of notifications to users.
+
+Built with **NestJS** and **TypeScript** for efficient message handling and delivery, leveraging NestJS's powerful module system for organized code structure.
+
+### Implemented domains
+
+- [x] [Notification Domain API](./docs/6_4-notification.api.md)
+
+#### ⬇️ Consumes:
+
+- [`🧑‍💼 SystemAPI`](https://github.com/AstroBookings/system_api/): Authentication and monitoring
+- [`📇 OperationsDB`](https://github.com/AstroBookings/.github/blob/main/profile/3-implementation/5_1-operations.schema.md): To store notification queues and user communication preferences
+- `👽 EmailSvc`: To send out email notifications
+
+#### ⬆️ Provides for:
+
+- Other APIs: Notification sending capabilities
+
+## 📚 Repository Instructions
+
+To **run** the project, follow these steps:
+
+```shell
+# clone the project
+git clone https://github.com/AstroBookings/notify-api.git
+cd notify-api
+# install the dependencies
+npm install
+# run the project
+npm run start
+# open at http://localhost:3000/notification/test
 ```
 
-## Compile and run the project
+To **test** the project, follow these steps:
 
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+```shell
+# run the tests
+npm run test
+# run the tests in e2e mode
+npm run test:e2e
 ```
 
-## Run tests
+To **develop** the project, follow these steps:
 
-```bash
-# unit tests
-$ npm run test
+```shell
+# run the project in watch mode
+npm run start:dev
+# run the tests in watch mode
+npm run test:watch
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
 ```
 
-## Resources
+---
 
-Check out a few resources that may come in handy when working with NestJS:
+## [🚀 AstroBookings](https://github.com/AstroBookings)
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+> [!NOTE]
+>
+> > _[Alberto Basalo](https://github.com/albertobasalo)_ >> _Elevating Code Quality._
