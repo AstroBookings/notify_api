@@ -1,7 +1,7 @@
 import { EntityManager, EntityRepository } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable, Logger } from '@nestjs/common';
-import { IdService } from 'src/shared/id.service';
+import { IdService } from '../../../shared/id.service';
 import { EventDto } from '../models/event.dto';
 import { Notification } from '../models/notification.type';
 import { BuildNotifications } from './notification.builder';
@@ -19,7 +19,6 @@ export class NotificationService {
     private readonly templateRepository: EntityRepository<TemplateEntity>,
     private readonly entityManager: EntityManager,
     private readonly idService: IdService,
-    private readonly notificationFactory: NotificationFactory,
   ) {
     this.#logger.debug('🚀  initialized');
   }
@@ -30,14 +29,20 @@ export class NotificationService {
    * @returns A promise that resolves to the saved notification.
    */
   async saveNotification(event: EventDto): Promise<Notification> {
+    const notificationFactory = new NotificationFactory();
+    this.#logger.log(`🤖 notificationFactory: ${notificationFactory}`);
     const notificationBuilder: BuildNotifications =
-      this.notificationFactory.createBuilder(
+      notificationFactory.createBuilder(
         event,
         this.templateRepository,
         this.entityManager,
       );
+    this.#logger.log(`🤖 notificationBuilder: ${notificationBuilder}`);
     const notification: NotificationEntity = await notificationBuilder.build();
+    this.#logger.log(`🤖 notification: ${notification}`);
+    notification.id = this.idService.generateId();
     await this.notificationRepository.insert(notification);
+    this.#logger.log(`🤖 notification inserted: ${notification}`);
     return this.mapToNotification(notification);
   }
 

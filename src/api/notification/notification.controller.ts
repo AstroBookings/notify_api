@@ -1,4 +1,4 @@
-import { Body, Controller, Logger, Post } from '@nestjs/common';
+import { Body, Controller, Get, Logger, Post } from '@nestjs/common';
 import { EventDto } from './models/event.dto';
 import { Notification } from './models/notification.type';
 import { NotificationService } from './services/notification.service';
@@ -13,6 +13,11 @@ export class NotificationController {
   readonly #logger = new Logger(NotificationController.name);
   constructor(private readonly notificationService: NotificationService) {
     this.#logger.debug('🚀  initialized');
+  }
+
+  @Get('test')
+  async test(): Promise<string> {
+    return 'Hello World!';
   }
 
   /**

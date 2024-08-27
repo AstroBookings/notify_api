@@ -3,6 +3,10 @@ import { EventDto } from '../models/event.dto';
 import { NotificationBuilder } from './notification.builder';
 import { TemplateEntity } from './template.entity';
 
+/**
+ * LaunchScheduledBuilder is a concrete builder for 'launch_scheduled' events.
+ * It extends NotificationBuilder and implements the Template Method pattern.
+ */
 export class LaunchScheduledBuilder extends NotificationBuilder {
   constructor(
     event: EventDto,
@@ -12,19 +16,51 @@ export class LaunchScheduledBuilder extends NotificationBuilder {
     super(event, templateRepository, entityManager);
   }
 
+  /**
+   * Implements the abstract loadData method from NotificationBuilder.
+   * This is part of the Template Method pattern.
+   */
   async loadData(event: EventDto): Promise<any> {
-    // Implement specific data loading for launch_scheduled event
     const launchId: string = event.data;
-    const launch = await this.entityManager.findOne('Launch', { id: launchId });
-    return { launch };
+    const queryLaunch: string = `SELECT * FROM launches WHERE id = '${launchId}'`;
+    console.log(`🤖 query: ${queryLaunch}`);
+    const launchesFound = await this.entityManager
+      .getConnection()
+      .execute(queryLaunch);
+    const launch = launchesFound[0];
+    if (!launch) {
+      throw new Error(`Launch with id ${launchId} not found`);
+    }
+    console.log(`🤖 launch: ${launchId}`, JSON.stringify(launch));
+    const userId = launch['agency_id'];
+    const queryAgency: string = `SELECT * FROM agencies WHERE user_id = '${userId}'`;
+    console.log(`🤖 query: ${queryAgency}`);
+    const agenciesFound = await this.entityManager
+      .getConnection()
+      .execute(queryAgency);
+    const agency = agenciesFound[0];
+    if (!agency) {
+      throw new Error(`Agency with id ${launch.agencyId} not found`);
+    }
+    console.log(`🤖 agency: ${userId}`, JSON.stringify(agency));
+    this.data = { launch, agency, userId };
+    return { launch, agency, userId };
   }
 
+  /**
+   * Implements the abstract writeSubject method from NotificationBuilder.
+   * This is part of the Template Method pattern.
+   */
   writeSubject(template: TemplateEntity, data: any): string {
-    return `Launch Scheduled: ${data.launch.name}`;
+    return `Launch Scheduled: ${data.launch.destination}`;
   }
 
+  /**
+   * Implements the abstract writeMessage method from NotificationBuilder.
+   * This is part of the Template Method pattern.
+   */
   writeMessage(template: TemplateEntity, data: any): string {
-    return `Your launch "${data.launch.name}" has been scheduled for ${data.launch.date}.`;
+    return `Your launch "${data.launch.destination}" has been scheduled for ${data.launch.date}.`;
   }
 }
 

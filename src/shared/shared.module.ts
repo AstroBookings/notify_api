@@ -3,5 +3,6 @@ import { IdService } from './id.service';
 
 @Module({
   providers: [IdService],
+  exports: [IdService],
 })
 export class SharedModule {}

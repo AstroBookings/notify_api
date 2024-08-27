@@ -13,7 +13,21 @@ import {
 import { BuildNotifications } from './notification.builder';
 import { TemplateEntity } from './template.entity';
 
+/**
+ * NotificationFactory implements the Factory Method pattern.
+ * It creates different types of notification builders based on the event type.
+ */
 export class NotificationFactory {
+  /**
+   * Creates and returns a specific notification builder based on the event type.
+   * This is the core of the Factory Method pattern.
+   *
+   * @param event - The event data for which to create a notification builder.
+   * @param templateRepository - Repository for accessing template entities.
+   * @param entityManager - Entity manager for database operations.
+   * @returns An instance of a class implementing BuildNotifications interface.
+   * @throws Error if an unsupported event type is provided.
+   */
   createBuilder(
     event: EventDto,
     templateRepository: EntityRepository<TemplateEntity>,

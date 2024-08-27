@@ -21,6 +21,12 @@ export class NotificationEntity {
   userId!: string;
 
   /**
+   * Recipient's name
+   */
+  @Property({ fieldName: 'recipient_name' })
+  recipientName!: string;
+
+  /**
    * Recipient's email address
    */
   @Property({ fieldName: 'recipient_email' })
@@ -39,10 +45,16 @@ export class NotificationEntity {
   message!: string;
 
   /**
+   * Notification data
+   */
+  @Property({ type: 'json' })
+  data: any;
+
+  /**
    * Timestamp of the notification
    */
-  @Property()
-  timestamp!: Date;
+  @Property({ fieldName: 'created_at' })
+  createdAt!: Date;
 
   /**
    * Status of the notification
