@@ -18,8 +18,6 @@ const postgresConfig = {
 
 @Module({
   imports: [MikroOrmModule.forRoot(postgresConfig), NotificationModule],
-  controllers: [],
-  providers: [],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {

@@ -14,11 +14,11 @@ Feature: Send launch-related notifications to agencies
     Given the API is available
     When the system sends a POST request to "/api/notification/" with the following data:
       | event |  data |
-      | "newBooking" |  { launch_id: 1, booking_id: 1 } |
+      | "booking_confirmed" |  "1" |
     Then the response should have a status code of 200
     And the notification data to be sent to the agency
         | recipient_email | subject | message |
-        | "agency@example.com" | "New booking for launch" | "You have a new booking for launch 1" |
+        | "agency@example.com" | "New booking for your launch" | "You have a new booking for launch 1" |
 ```
 
 ## NestJs Implementation
@@ -71,17 +71,30 @@ Those are the required DTOs for the API with `NestJs Validation` and `class-vali
 ```shell
 nest g class api/notification/models/event.dto --flat --no-spec
 nest g class api/notification/models/notification.type --flat --no-spec
+nest g class api/notification/models/template-event.type --flat --no-spec
+
 ```
 
 ```typescript
-import { IsNotEmpty, IsObject, IsString } from "class-validator";
+import { IsNotEmpty, IsObject, IsString } from 'class-validator';
+
+export type TemplateEvent =
+  | 'launch_scheduled'
+  | 'launch_confirmed'
+  | 'launch_launched'
+  | 'launch_delayed'
+  | 'launch_aborted'
+  | 'booking_confirmed'
+  | 'booking_canceled'
+  | 'invoice_issued';
+
 export class EventDto {
   @IsString()
   @IsNotEmpty()
-  event: string;
+  name: TemplateEvent;
 
   @IsObject()
-  data: Record<string, any>;
+  data: string;
 }
 
 export type Notification = {
@@ -90,11 +103,6 @@ export type Notification = {
   subject: string;
   message: string;
 };
-
-/**
- * Notification status enum
- */
-export type NotificationStatus = "pending" | "sent" | "failed";
 ```
 
 ## Data Model for Entities
@@ -106,18 +114,23 @@ Those are the required entities for the API with `TypeORM` interacting with the 
 - Represents messages sent to system users about various events
 
 ```shell
+nest g module api/notification/services/notification-status.type --flat --no-spec
 nest g class api/notification/services/notification.entity --flat --no-spec
 nest g class api/notification/services/template.entity --flat --no-spec
 ```
 
 ```typescript
-import { Entity, PrimaryKey, Property, Enum } from "@mikro-orm/core";
+import { Entity, PrimaryKey, Property, Enum } from '@mikro-orm/core';
+/**
+ * Notification status enum
+ */
+export type NotificationStatus = 'pending' | 'sent' | 'failed';
 
 /**
  * Notification entity
  * @description Entity for read/write on notifications table
  */
-@Entity({ tableName: "notifications" })
+@Entity({ tableName: 'notifications' })
 export class NotificationEntity {
   /**
    * Primary key
@@ -127,23 +140,6 @@ export class NotificationEntity {
 
   @ManyToOne(() => TemplateEntity)
   template!: TemplateEntity;
-
-  // ? Should be simplified to foreign keys?
-
-  @ManyToOne(() => AgencyEntity)
-  agency!: AgencyEntity;
-
-  @ManyToOne(() => LaunchEntity)
-  launch!: LaunchEntity;
-
-  @ManyToOne(() => TravelerEntity)
-  traveler!: TravelerEntity;
-
-  @ManyToOne(() => BookingEntity)
-  booking!: BookingEntity;
-
-  @ManyToOne(() => InvoiceEntity)
-  invoice!: InvoiceEntity;
 
   /**
    * Recipient's email address
@@ -160,7 +156,7 @@ export class NotificationEntity {
   /**
    * Notification message content
    */
-  @Property({ type: "text" })
+  @Property({ type: 'text' })
   message!: string;
 
   /**
@@ -170,9 +166,27 @@ export class NotificationEntity {
   timestamp!: Date;
 
   /**
+   * JSON data
+   */
+  @Property({ type: 'json' })
+  data!: Record<string, any>;
+
+  /**
+   * Created at
+   */
+  @Property({ name: 'created_at', onCreate: () => new Date() })
+  createdAt!: Date;
+
+  /**
+   * Updated at
+   */
+  @Property({ name: 'updated_at' })
+  updatedAt: Date;
+
+  /**
    * Status of the notification
    */
-  @Property({ type: "text" })
+  @Property({ type: 'text' })
   status!: NotificationStatus;
 }
 
@@ -180,15 +194,15 @@ export class NotificationEntity {
  * Notification entity data type
  * @description Type definition for the Notification entity
  */
-export type NotificationEntityData = Omit<NotificationEntity, "id">;
+export type NotificationEntityData = Omit<NotificationEntity, 'id'>;
 
-@Entity({ tableName: "templates" })
+@Entity({ tableName: 'templates' })
 export class TemplateEntity {
   @PrimaryKey()
   id!: string;
 
-  @Property()
-  name!: string;
+  @Property({ name: 'event_name', type: 'text' })
+  eventName!: TemplateEvent;
 
   @Property()
   subject!: string;
@@ -200,5 +214,5 @@ export class TemplateEntity {
   notifications!: NotificationEntity[];
 }
 
-export type TemplateEntityData = Omit<TemplateEntity, "id">;
+export type TemplateEntityData = Omit<TemplateEntity, 'id'>;
 ```

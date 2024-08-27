@@ -1,4 +1,5 @@
 import { IsNotEmpty, IsObject, IsString } from 'class-validator';
+import { TemplateEvent } from './template-event.type';
 /**
  * Event DTO
  * @description DTO for event data
@@ -6,8 +7,8 @@ import { IsNotEmpty, IsObject, IsString } from 'class-validator';
 export class EventDto {
   @IsString()
   @IsNotEmpty()
-  event: string;
+  name: TemplateEvent;
 
   @IsObject()
-  data: Record<string, any>;
+  data: string;
 }
