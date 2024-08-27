@@ -1,9 +1,10 @@
-import { EntityRepository } from '@mikro-orm/core';
+import { EntityManager, EntityRepository } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { IdService } from 'src/shared/id.service';
 import { EventDto } from '../models/event.dto';
 import { Notification } from '../models/notification.type';
+import { BuildNotifications } from './notification.builder';
 import { NotificationEntity } from './notification.entity';
 import { NotificationFactory } from './notification.factory';
 import { TemplateEntity } from './template.entity';
@@ -16,6 +17,7 @@ export class NotificationService {
     private readonly notificationRepository: EntityRepository<NotificationEntity>,
     @InjectRepository(TemplateEntity)
     private readonly templateRepository: EntityRepository<TemplateEntity>,
+    private readonly entityManager: EntityManager,
     private readonly idService: IdService,
     private readonly notificationFactory: NotificationFactory,
   ) {
@@ -28,25 +30,14 @@ export class NotificationService {
    * @returns A promise that resolves to the saved notification.
    */
   async saveNotification(event: EventDto): Promise<Notification> {
-    const template: TemplateEntity = await this.templateRepository.findOne({
-      eventName: event.name,
-    });
-    if (!template) {
-      throw new NotFoundException(
-        `Template not found for event: ${event.name}`,
+    const notificationBuilder: BuildNotifications =
+      this.notificationFactory.createBuilder(
+        event,
+        this.templateRepository,
+        this.entityManager,
       );
-    }
-
-    const notificationBuilder = this.notificationFactory.createBuilder(
-      event.name,
-    );
-    const notification: NotificationEntity = await notificationBuilder.build(
-      template,
-      event.data,
-    );
-
+    const notification: NotificationEntity = await notificationBuilder.build();
     await this.notificationRepository.insert(notification);
-
     return this.mapToNotification(notification);
   }
 
