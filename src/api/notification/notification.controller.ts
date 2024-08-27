@@ -23,6 +23,6 @@ export class NotificationController {
   @Post()
   async sendNotification(@Body() event: EventDto): Promise<Notification> {
     this.#logger.log(`🤖 Sending notification for event: ${event.name}`);
-    return await this.notificationService.sendNotification(event);
+    return await this.notificationService.saveNotification(event);
   }
 }

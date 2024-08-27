@@ -1,5 +1,6 @@
-import { Entity, PrimaryKey, Property } from '@mikro-orm/core';
+import { Entity, ManyToOne, PrimaryKey, Property } from '@mikro-orm/core';
 import { NotificationStatus } from '../models/notification-status.type';
+import { TemplateEntity } from './template.entity';
 
 /**
  * Notification entity
@@ -48,6 +49,9 @@ export class NotificationEntity {
    */
   @Property({ type: 'text' })
   status!: NotificationStatus;
+
+  @ManyToOne(() => TemplateEntity)
+  template!: TemplateEntity;
 }
 
 /**

@@ -1,6 +1,6 @@
 export type Notification = {
   id: string;
-  recipient_email: string;
+  recipientEmail: string;
   subject: string;
   message: string;
 };

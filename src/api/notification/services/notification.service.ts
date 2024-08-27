@@ -1,10 +1,12 @@
 import { EntityRepository } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { IdService } from 'src/shared/id.service';
 import { EventDto } from '../models/event.dto';
 import { Notification } from '../models/notification.type';
 import { NotificationEntity } from './notification.entity';
+import { NotificationFactory } from './notification.factory';
+import { TemplateEntity } from './template.entity';
 
 @Injectable()
 export class NotificationService {
@@ -12,38 +14,48 @@ export class NotificationService {
   constructor(
     @InjectRepository(NotificationEntity)
     private readonly notificationRepository: EntityRepository<NotificationEntity>,
+    @InjectRepository(TemplateEntity)
+    private readonly templateRepository: EntityRepository<TemplateEntity>,
     private readonly idService: IdService,
+    private readonly notificationFactory: NotificationFactory,
   ) {
     this.#logger.debug('🚀  initialized');
   }
 
   /**
-   * Sends a notification based on the provided event.
+   * Saves a notification based on the provided event.
    * @param event - The event data for the notification.
-   * @returns A promise that resolves to the sent notification.
+   * @returns A promise that resolves to the saved notification.
    */
-  async sendNotification(event: EventDto): Promise<Notification> {
-    // Implement the notification sending logic here
-    const notification = new NotificationEntity();
-    notification.id = this.idService.generateId();
-    notification.recipientEmail = 'placeholder';
-    notification.subject = 'placeholder';
-    notification.message = 'Notification to be sent';
-    // For now, return a placeholder notification
+  async saveNotification(event: EventDto): Promise<Notification> {
+    const template: TemplateEntity = await this.templateRepository.findOne({
+      eventName: event.name,
+    });
+    if (!template) {
+      throw new NotFoundException(
+        `Template not found for event: ${event.name}`,
+      );
+    }
+
+    const notificationBuilder = this.notificationFactory.createBuilder(
+      event.name,
+    );
+    const notification: NotificationEntity = await notificationBuilder.build(
+      template,
+      event.data,
+    );
+
+    await this.notificationRepository.insert(notification);
+
+    return this.mapToNotification(notification);
+  }
+
+  private mapToNotification(entity: NotificationEntity): Notification {
     return {
-      id: 'placeholder',
-      recipient_email: 'placeholder',
-      subject: 'placeholder',
-      message: 'Notification to be sent',
+      id: entity.id,
+      recipientEmail: entity.recipientEmail,
+      subject: entity.subject,
+      message: entity.message,
     };
-    // To Do:
-    // - notification factory based on event.name
-    // - returns a specific notification builder based on the event
-    // - read template from database based on event.name
-    // - read data from database with event.data id (could be a complex task)
-    // - build notification subject and message with template and data (should be generic)
-    // - save notification entity to database
-    // - return notification
-    // involved patterns: factory, builder, template method
   }
 }
