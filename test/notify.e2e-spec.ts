@@ -24,7 +24,7 @@ describe('AppController (e2e)', () => {
   });
 
   describe('POST /notification', () => {
-    it('should send a launch_scheduled notification event', async () => {
+    it('should save a launch_scheduled notification event', async () => {
       const inputEvent: EventDto = {
         name: 'launch_scheduled',
         data: 'lnch_2',
@@ -33,7 +33,7 @@ describe('AppController (e2e)', () => {
       expect(response.body).toHaveLength(1);
       console.log(response.body);
     });
-    it('should send a booking_confirmed notification event', async () => {
+    it('should save a booking_confirmed notification event', async () => {
       const inputEvent: EventDto = {
         name: 'booking_confirmed',
         data: 'bkg_1',
@@ -42,10 +42,18 @@ describe('AppController (e2e)', () => {
       expect(response.body).toHaveLength(1);
       console.log(response.body);
     });
-    it('should not send a invoice_issued notification event', async () => {
+    it('should save an invoice_issued notification event', async () => {
       const inputEvent: EventDto = {
         name: 'invoice_issued',
         data: 'inv_1',
+      };
+      const response = await req.post('/notification').send(inputEvent).expect(201);
+      console.log(response.body);
+    });
+    it('should not send, yet, a booking_canceled notification event', async () => {
+      const inputEvent: EventDto = {
+        name: 'booking_canceled',
+        data: 'not_existing_event',
       };
       const response = await req.post('/notification').send(inputEvent).expect(404);
       expect(response.body.message).toBe(`Template not found for event: ${inputEvent.name}`);

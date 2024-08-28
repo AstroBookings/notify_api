@@ -26,6 +26,7 @@ export class LaunchScheduledBuilder extends NotificationBuilder {
 
   writeSubject(): string {
     this.subjectData = {
+      mission: this.data['launch']['mission'],
       destination: this.data['launch']['destination'],
     };
     return super.writeSubject();
@@ -34,6 +35,7 @@ export class LaunchScheduledBuilder extends NotificationBuilder {
   writeMessage(): string {
     this.messageData = {
       destination: this.data['launch']['destination'],
+      mission: this.data['launch']['mission'],
       date: this.data['launch']['date'],
     };
     return super.writeMessage();
@@ -62,8 +64,8 @@ export class LaunchConfirmedBuilder extends NotificationBuilder {
 
   writeSubject(): string {
     this.subjectData = {
-      destination: this.data['launch']['destination'],
       mission: this.data['launch']['mission'],
+      destination: this.data['launch']['destination'],
     };
     return super.writeSubject();
   }
@@ -273,6 +275,8 @@ export class BookingCanceledBuilder extends NotificationBuilder {
     this.messageData = {
       mission: this.data['launch']['mission'],
       destination: this.data['launch']['destination'],
+      date: this.data['launch']['date'],
+      number_of_seats: this.data['booking']['number_of_seats'],
     };
     return super.writeMessage();
   }
@@ -294,13 +298,20 @@ export class InvoiceIssuedBuilder extends NotificationBuilder {
     if (!invoice) {
       throw new Error(`Invoice with id ${invoiceId} not found`);
     }
-    this.data = { invoice };
+    const launchId: string = invoice['launch_id'];
+    const [launch]: any[] = await this.connection.execute(`SELECT * FROM launches WHERE id = ?`, [launchId]);
+    if (!launch) {
+      throw new Error(`Launch with id ${launchId} not found`);
+    }
+    this.data = { invoice, launch };
     this.userIds = [invoice['agency_id']];
   }
 
   writeSubject(): string {
     this.subjectData = {
       number: this.data['invoice']['number'],
+      mission: this.data['launch']['mission'],
+      destination: this.data['launch']['destination'],
     };
     return super.writeSubject();
   }
@@ -309,6 +320,9 @@ export class InvoiceIssuedBuilder extends NotificationBuilder {
     this.messageData = {
       number: this.data['invoice']['number'],
       amount: this.data['invoice']['amount'],
+      mission: this.data['launch']['mission'],
+      destination: this.data['launch']['destination'],
+      date: this.data['launch']['date'],
     };
     return super.writeMessage();
   }
