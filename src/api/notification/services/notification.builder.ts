@@ -38,6 +38,7 @@ export abstract class NotificationBuilder implements BuildNotifications {
   template: TemplateEntity;
   data: any = {};
   userIds: string[] = [];
+  protected connection = this.entityManager.getConnection();
 
   constructor(
     protected readonly event: EventDto,
@@ -98,8 +99,40 @@ export abstract class NotificationBuilder implements BuildNotifications {
   abstract writeSubject(): string;
 
   /**
+   * Replaces subject placeholders with dynamic values.
+   * @param {Record<string, string>} placeholderData - An object with data to replace the placeholders.
+   * @returns {string} The subject with replaced placeholders.
+   */
+  protected replaceSubject(placeholderData: Record<string, string>): string {
+    const templateSubject = this.template.subject;
+    return this.#replacePlaceholders(templateSubject, placeholderData);
+  }
+
+  /**
    * Abstract method to be implemented by subclasses for writing the notification message.
    * This is part of the Template Method pattern.
    */
   abstract writeMessage(): string;
+
+  /**
+   * Replaces message placeholders with dynamic values.
+   * @param {Record<string, string>} placeholderData - An object with data to replace the placeholders.
+   * @returns {string} The message with replaced placeholders.
+   */
+  protected replaceMessage(placeholderData: Record<string, string>): string {
+    const templateMessage = this.template.message;
+    return this.#replacePlaceholders(templateMessage, placeholderData);
+  }
+
+  /**
+   * Replaces placeholders in a template with dynamic values.
+   * @param {string} template - The template with placeholders.
+   * @param {Record<string, string>} data - An object with data to replace the placeholders.
+   * @returns {string} The message with replaced placeholders.
+   */
+  #replacePlaceholders(template: string, data: Record<string, string>): string {
+    const placeholderRegex: RegExp = /\{(\w+)\}/g;
+    const replacer = (match: string, key: string): string => data[key] || match;
+    return template.replace(placeholderRegex, replacer);
+  }
 }

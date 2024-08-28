@@ -14,41 +14,39 @@ export class LaunchScheduledBuilder extends NotificationBuilder {
 
   async loadData(): Promise<any> {
     const launchId: string = this.event.data;
-
     // get launch data
     const queryLaunch: string = `SELECT * FROM launches WHERE id = '${launchId}'`;
-    const launchesFound = await this.entityManager
-      .getConnection()
-      .execute(queryLaunch);
+    const launchesFound = await this.connection.execute(queryLaunch);
     const launch = launchesFound[0];
     if (!launch) {
       throw new Error(`Launch with id ${launchId} not found`);
     }
-    this.data = { launch };
-
+    this.data['launch'] = launch;
     // get bookings
     const queryBookings: string = `SELECT * FROM bookings WHERE launch_id = '${launchId}'`;
-    const bookingsFound = await this.entityManager
-      .getConnection()
-      .execute(queryBookings);
+    const bookingsFound = await this.connection.execute(queryBookings);
     const bookings = bookingsFound;
     if (!bookings) {
       return this.data;
     }
-
     // get user ids from bookings
-    const userIds = bookings.map((booking: any) => booking['traveler_id']);
-    this.userIds = userIds;
-
+    this.userIds = bookings.map((booking: any) => booking['traveler_id']);
     return this.data;
   }
 
   writeSubject(): string {
-    return `Launch Scheduled: ${this.data.launch.destination}`;
+    const placeholderData: Record<string, string> = {
+      destination: this.data['launch']['destination'],
+    };
+    return this.replaceSubject(placeholderData);
   }
 
   writeMessage(): string {
-    return `Your launch "${this.data.launch.destination}" has been scheduled for ${this.data.launch.date}.`;
+    const placeholderData: Record<string, string> = {
+      destination: this.data['launch']['destination'],
+      date: this.data['launch']['date'],
+    };
+    return this.replaceMessage(placeholderData);
   }
 }
 
@@ -145,43 +143,52 @@ export class LaunchAbortedBuilder extends NotificationBuilder {
 }
 
 export class BookingConfirmedBuilder extends NotificationBuilder {
-  // ... constructor ...
+  constructor(
+    event: EventDto,
+    templateRepository: EntityRepository<TemplateEntity>,
+    entityManager: EntityManager,
+  ) {
+    super(event, templateRepository, entityManager);
+  }
 
   async loadData(): Promise<any> {
     const bookingId: string = this.event.data;
     // get booking
     const queryBooking: string = `SELECT * FROM bookings WHERE id = '${bookingId}'`;
-    const bookingFound = await this.entityManager
-      .getConnection()
-      .execute(queryBooking);
+    const bookingFound = await this.connection.execute(queryBooking);
     const booking = bookingFound[0];
     if (!booking) {
       throw new Error(`Booking with id ${bookingId} not found`);
     }
-    this.data = { booking };
+    this.data['booking'] = booking;
     // get launch from booking
     const launchId = booking['launch_id'];
     const queryLaunch: string = `SELECT * FROM launches WHERE id = '${launchId}'`;
-    const launchFound = await this.entityManager
-      .getConnection()
-      .execute(queryLaunch);
+    const launchFound = await this.connection.execute(queryLaunch);
     const launch = launchFound[0];
     if (!launch) {
       throw new Error(`Launch with id ${launchId} not found`);
     }
-    this.data.launch = launch;
-    // get agency id from booking launch
-    const agencyId = launch['agency_id'];
-    this.userIds = [agencyId];
+    this.data['launch'] = launch;
+    // get user ids from launch
+    this.userIds = [launch['agency_id']];
     return this.data;
   }
 
   writeSubject(): string {
-    return `Booking Confirmed: ${this.data.launch['destination']}`;
+    const placeholderData: Record<string, string> = {
+      destination: this.data['launch']['destination'],
+    };
+    return this.replaceSubject(placeholderData);
   }
 
   writeMessage(): string {
-    return `A new booking was for the launch "${this.data.launch['destination']}" has been confirmed.`;
+    const placeholderData: Record<string, string> = {
+      destination: this.data['launch']['destination'],
+      date: this.data['launch']['date'],
+      number_of_seats: this.data['booking']['number_of_seats'],
+    };
+    return this.replaceMessage(placeholderData);
   }
 }
 
