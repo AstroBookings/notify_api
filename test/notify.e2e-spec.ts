@@ -48,5 +48,18 @@ describe('AppController (e2e)', () => {
       expect(response.body).toHaveLength(1);
       console.log(response.body);
     });
+    it('should not send a invoice_issued notification event', async () => {
+      const inputEvent: EventDto = {
+        name: 'invoice_issued',
+        data: 'inv_1',
+      };
+      const response = await request(app.getHttpServer())
+        .post('/notification')
+        .send(inputEvent)
+        .expect(404);
+      expect(response.body.message).toBe(
+        `Template not found for event: ${inputEvent.name}`,
+      );
+    });
   });
 });
