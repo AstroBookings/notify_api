@@ -24,10 +24,22 @@ describe('AppController (e2e)', () => {
   });
 
   describe('POST /notification', () => {
-    it('should send a notification', async () => {
+    it('should send a launch_scheduled notification event', async () => {
       const inputEvent: EventDto = {
         name: 'launch_scheduled',
         data: 'lnch_2',
+      };
+      const response = await request(app.getHttpServer())
+        .post('/notification')
+        .send(inputEvent)
+        .expect(201);
+      expect(response.body).toHaveLength(1);
+      console.log(response.body);
+    });
+    it('should send a booking_confirmed notification event', async () => {
+      const inputEvent: EventDto = {
+        name: 'booking_confirmed',
+        data: 'bkg_1',
       };
       const response = await request(app.getHttpServer())
         .post('/notification')

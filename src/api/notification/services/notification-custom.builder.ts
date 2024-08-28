@@ -149,23 +149,39 @@ export class BookingConfirmedBuilder extends NotificationBuilder {
 
   async loadData(): Promise<any> {
     const bookingId: string = this.event.data;
-    const booking = await this.entityManager.findOne('Booking', {
-      id: bookingId,
-    });
+    // get booking
+    const queryBooking: string = `SELECT * FROM bookings WHERE id = '${bookingId}'`;
+    const bookingFound = await this.entityManager
+      .getConnection()
+      .execute(queryBooking);
+    const booking = bookingFound[0];
     if (!booking) {
       throw new Error(`Booking with id ${bookingId} not found`);
     }
     this.data = { booking };
-    this.userIds = [booking['user_id']];
+    // get launch from booking
+    const launchId = booking['launch_id'];
+    const queryLaunch: string = `SELECT * FROM launches WHERE id = '${launchId}'`;
+    const launchFound = await this.entityManager
+      .getConnection()
+      .execute(queryLaunch);
+    const launch = launchFound[0];
+    if (!launch) {
+      throw new Error(`Launch with id ${launchId} not found`);
+    }
+    this.data.launch = launch;
+    // get agency id from booking launch
+    const agencyId = launch['agency_id'];
+    this.userIds = [agencyId];
     return this.data;
   }
 
   writeSubject(): string {
-    return `Booking Confirmed: ${this.data.booking.launchName}`;
+    return `Booking Confirmed: ${this.data.launch['destination']}`;
   }
 
   writeMessage(): string {
-    return `Your booking for the launch "${this.data.booking.launchName}" has been confirmed.`;
+    return `A new booking was for the launch "${this.data.launch['destination']}" has been confirmed.`;
   }
 }
 
