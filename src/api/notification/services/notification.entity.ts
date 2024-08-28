@@ -21,18 +21,6 @@ export class NotificationEntity {
   userId!: string;
 
   /**
-   * Recipient's name
-   */
-  @Property({ fieldName: 'recipient_name' })
-  recipientName!: string;
-
-  /**
-   * Recipient's email address
-   */
-  @Property({ fieldName: 'recipient_email' })
-  recipientEmail!: string;
-
-  /**
    * Notification subject
    */
   @Property()

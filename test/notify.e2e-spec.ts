@@ -29,10 +29,12 @@ describe('AppController (e2e)', () => {
         name: 'launch_scheduled',
         data: 'lnch_2',
       };
-      await request(app.getHttpServer())
+      const response = await request(app.getHttpServer())
         .post('/notification')
         .send(inputEvent)
         .expect(201);
+      expect(response.body).toHaveLength(1);
+      console.log(response.body);
     });
   });
 });

@@ -4,6 +4,15 @@ import { EventDto } from '../models/event.dto';
 import { NotificationEntity } from './notification.entity';
 import { TemplateEntity } from './template.entity';
 
+// Note: The concrete implementations of NotificationBuilder should be updated
+// to match these changes, but they are not visible in the current selection.
+
+// The services using NotificationBuilder should be updated to handle an array of
+// notifications and provide the userIds when creating the builder.
+
+// Tests should be updated to expect an array of notifications and include
+// cases for multiple users.
+
 /**
  * BuildNotifications interface defines the contract for notification builders.
  * This is part of the Builder pattern.
@@ -11,11 +20,13 @@ import { TemplateEntity } from './template.entity';
 export interface BuildNotifications {
   template: TemplateEntity;
   data: any;
-  build(): Promise<NotificationEntity>;
-  loadTemplate(event: EventDto): Promise<TemplateEntity>;
-  loadData(event: EventDto): Promise<any>;
-  writeSubject(template: TemplateEntity, data: any): string;
-  writeMessage(template: TemplateEntity, data: any): string;
+  userIds: string[];
+
+  build(): Promise<NotificationEntity[]>;
+  loadTemplate(): Promise<TemplateEntity>;
+  loadData(): Promise<any>;
+  writeSubject(): string;
+  writeMessage(): string;
 }
 
 /**
@@ -24,67 +35,71 @@ export interface BuildNotifications {
  * deferred to subclasses.
  */
 export abstract class NotificationBuilder implements BuildNotifications {
+  template: TemplateEntity;
+  data: any = {};
+  userIds: string[] = [];
+
   constructor(
     protected readonly event: EventDto,
     protected readonly templateRepository: EntityRepository<TemplateEntity>,
     protected readonly entityManager: EntityManager,
   ) {}
-  template: TemplateEntity;
-  data: any;
-  notification: NotificationEntity;
+
+  /**
+   * Template method for building notifications.
+   * This is part of the Template Method pattern.
+   */
+  async build(): Promise<NotificationEntity[]> {
+    this.template = await this.loadTemplate();
+    this.data = await this.loadData();
+    const subject: string = this.writeSubject();
+    const message: string = this.writeMessage();
+
+    return this.userIds.map((userId: string) => {
+      const notification: NotificationEntity = new NotificationEntity();
+      notification.userId = userId;
+      notification.subject = subject;
+      notification.message = message;
+      notification.data = this.data;
+      notification.createdAt = new Date();
+      notification.status = 'pending';
+      notification.template = this.template;
+      return notification;
+    });
+  }
 
   /**
    * Template method for loading the notification template.
    * This is part of the Template Method pattern.
    */
-  async loadTemplate(event: EventDto): Promise<TemplateEntity> {
-    this.template = await this.templateRepository.findOne({
-      eventName: event.name,
-    });
-    if (!this.template) {
+  async loadTemplate(): Promise<TemplateEntity> {
+    const template: TemplateEntity | null =
+      await this.templateRepository.findOne({
+        eventName: this.event.name,
+      });
+    if (!template) {
       throw new NotFoundException(
-        `Template not found for event: ${event.name}`,
+        `Template not found for event: ${this.event.name}`,
       );
     }
-    return this.template;
+    return template;
   }
 
   /**
    * Abstract method to be implemented by subclasses for loading event-specific data.
    * This is part of the Template Method pattern.
    */
-  abstract loadData(event: EventDto): Promise<any>;
+  abstract loadData(): Promise<any>;
 
   /**
    * Abstract method to be implemented by subclasses for writing the notification subject.
    * This is part of the Template Method pattern.
    */
-  abstract writeSubject(template: TemplateEntity, data: any): string;
+  abstract writeSubject(): string;
 
   /**
    * Abstract method to be implemented by subclasses for writing the notification message.
    * This is part of the Template Method pattern.
    */
-  abstract writeMessage(template: TemplateEntity, data: any): string;
-
-  /**
-   * Template method that defines the skeleton of the notification building algorithm.
-   * This is the core of the Template Method pattern.
-   */
-  async build(): Promise<NotificationEntity> {
-    this.template = await this.loadTemplate(this.event);
-    this.data = await this.loadData(this.event);
-    console.log(`🤖 data: ${JSON.stringify(this.data)}`);
-    this.notification = new NotificationEntity();
-    this.notification.subject = this.writeSubject(this.template, this.data);
-    this.notification.message = this.writeMessage(this.template, this.data);
-    this.notification.template = this.template;
-    this.notification.recipientName = this.data.agency.contact_info;
-    this.notification.recipientEmail = this.data.agency.contact_email;
-    this.notification.data = this.data;
-    this.notification.userId = this.data.userId;
-    this.notification.status = 'pending';
-    this.notification.createdAt = new Date();
-    return this.notification;
-  }
+  abstract writeMessage(): string;
 }

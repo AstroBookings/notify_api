@@ -3,10 +3,6 @@ import { EventDto } from '../models/event.dto';
 import { NotificationBuilder } from './notification.builder';
 import { TemplateEntity } from './template.entity';
 
-/**
- * LaunchScheduledBuilder is a concrete builder for 'launch_scheduled' events.
- * It extends NotificationBuilder and implements the Template Method pattern.
- */
 export class LaunchScheduledBuilder extends NotificationBuilder {
   constructor(
     event: EventDto,
@@ -16,14 +12,11 @@ export class LaunchScheduledBuilder extends NotificationBuilder {
     super(event, templateRepository, entityManager);
   }
 
-  /**
-   * Implements the abstract loadData method from NotificationBuilder.
-   * This is part of the Template Method pattern.
-   */
-  async loadData(event: EventDto): Promise<any> {
-    const launchId: string = event.data;
+  async loadData(): Promise<any> {
+    const launchId: string = this.event.data;
+
+    // get launch data
     const queryLaunch: string = `SELECT * FROM launches WHERE id = '${launchId}'`;
-    console.log(`🤖 query: ${queryLaunch}`);
     const launchesFound = await this.entityManager
       .getConnection()
       .execute(queryLaunch);
@@ -31,174 +24,197 @@ export class LaunchScheduledBuilder extends NotificationBuilder {
     if (!launch) {
       throw new Error(`Launch with id ${launchId} not found`);
     }
-    console.log(`🤖 launch: ${launchId}`, JSON.stringify(launch));
-    const userId = launch['agency_id'];
-    const queryAgency: string = `SELECT * FROM agencies WHERE user_id = '${userId}'`;
-    console.log(`🤖 query: ${queryAgency}`);
-    const agenciesFound = await this.entityManager
+    this.data = { launch };
+
+    // get bookings
+    const queryBookings: string = `SELECT * FROM bookings WHERE launch_id = '${launchId}'`;
+    const bookingsFound = await this.entityManager
       .getConnection()
-      .execute(queryAgency);
-    const agency = agenciesFound[0];
-    if (!agency) {
-      throw new Error(`Agency with id ${launch.agencyId} not found`);
+      .execute(queryBookings);
+    const bookings = bookingsFound;
+    if (!bookings) {
+      return this.data;
     }
-    console.log(`🤖 agency: ${userId}`, JSON.stringify(agency));
-    this.data = { launch, agency, userId };
-    return { launch, agency, userId };
+
+    // get user ids from bookings
+    const userIds = bookings.map((booking: any) => booking['traveler_id']);
+    this.userIds = userIds;
+
+    return this.data;
   }
 
-  /**
-   * Implements the abstract writeSubject method from NotificationBuilder.
-   * This is part of the Template Method pattern.
-   */
-  writeSubject(template: TemplateEntity, data: any): string {
-    return `Launch Scheduled: ${data.launch.destination}`;
+  writeSubject(): string {
+    return `Launch Scheduled: ${this.data.launch.destination}`;
   }
 
-  /**
-   * Implements the abstract writeMessage method from NotificationBuilder.
-   * This is part of the Template Method pattern.
-   */
-  writeMessage(template: TemplateEntity, data: any): string {
-    return `Your launch "${data.launch.destination}" has been scheduled for ${data.launch.date}.`;
+  writeMessage(): string {
+    return `Your launch "${this.data.launch.destination}" has been scheduled for ${this.data.launch.date}.`;
   }
 }
 
 export class LaunchConfirmedBuilder extends NotificationBuilder {
   // ... constructor ...
 
-  async loadData(event: EventDto): Promise<any> {
-    // Implement specific data loading for launch_confirmed event
-    const launchId: string = event.data;
+  async loadData(): Promise<any> {
+    const launchId: string = this.event.data;
     const launch = await this.entityManager.findOne('Launch', { id: launchId });
-    return { launch };
+    if (!launch) {
+      throw new Error(`Launch with id ${launchId} not found`);
+    }
+    this.data = { launch };
+    this.userIds = [launch['agency_id']];
+    return this.data;
   }
 
-  writeSubject(template: TemplateEntity, data: any): string {
-    return `Launch Confirmed: ${data.launch.name}`;
+  writeSubject(): string {
+    return `Launch Confirmed: ${this.data.launch.name}`;
   }
 
-  writeMessage(template: TemplateEntity, data: any): string {
-    return `Your launch "${data.launch.name}" has been confirmed for ${data.launch.date}.`;
+  writeMessage(): string {
+    return `Your launch "${this.data.launch.name}" has been confirmed for ${this.data.launch.date}.`;
   }
 }
 
 export class LaunchLaunchedBuilder extends NotificationBuilder {
   // ... constructor ...
 
-  async loadData(event: EventDto): Promise<any> {
-    // Implement specific data loading for launch_launched event
-    const launchId: string = event.data;
+  async loadData(): Promise<any> {
+    const launchId: string = this.event.data;
     const launch = await this.entityManager.findOne('Launch', { id: launchId });
-    return { launch };
+    if (!launch) {
+      throw new Error(`Launch with id ${launchId} not found`);
+    }
+    this.data = { launch };
+    this.userIds = [launch['agency_id']];
+    return this.data;
   }
 
-  writeSubject(template: TemplateEntity, data: any): string {
-    return `Launch Successful: ${data.launch.name}`;
+  writeSubject(): string {
+    return `Launch Successful: ${this.data.launch.name}`;
   }
 
-  writeMessage(template: TemplateEntity, data: any): string {
-    return `Your launch "${data.launch.name}" has successfully launched!`;
+  writeMessage(): string {
+    return `Your launch "${this.data.launch.name}" has successfully launched!`;
   }
 }
 
 export class LaunchDelayedBuilder extends NotificationBuilder {
   // ... constructor ...
 
-  async loadData(event: EventDto): Promise<any> {
-    // Implement specific data loading for launch_delayed event
-    const launchId: string = event.data;
+  async loadData(): Promise<any> {
+    const launchId: string = this.event.data;
     const launch = await this.entityManager.findOne('Launch', { id: launchId });
-    return { launch };
+    if (!launch) {
+      throw new Error(`Launch with id ${launchId} not found`);
+    }
+    this.data = { launch };
+    this.userIds = [launch['agency_id']];
+    return this.data;
   }
 
-  writeSubject(template: TemplateEntity, data: any): string {
-    return `Launch Delayed: ${data.launch.name}`;
+  writeSubject(): string {
+    return `Launch Delayed: ${this.data.launch.name}`;
   }
 
-  writeMessage(template: TemplateEntity, data: any): string {
-    return `Your launch "${data.launch.name}" has been delayed. New date: ${data.launch.newDate}.`;
+  writeMessage(): string {
+    return `Your launch "${this.data.launch.name}" has been delayed. New date: ${this.data.launch.newDate}.`;
   }
 }
 
 export class LaunchAbortedBuilder extends NotificationBuilder {
   // ... constructor ...
 
-  async loadData(event: EventDto): Promise<any> {
-    // Implement specific data loading for launch_aborted event
-    const launchId: string = event.data;
+  async loadData(): Promise<any> {
+    const launchId: string = this.event.data;
     const launch = await this.entityManager.findOne('Launch', { id: launchId });
-    return { launch };
+    if (!launch) {
+      throw new Error(`Launch with id ${launchId} not found`);
+    }
+    this.data = { launch };
+    this.userIds = [launch['agency_id']];
+    return this.data;
   }
 
-  writeSubject(template: TemplateEntity, data: any): string {
-    return `Launch Aborted: ${data.launch.name}`;
+  writeSubject(): string {
+    return `Launch Aborted: ${this.data.launch.name}`;
   }
 
-  writeMessage(template: TemplateEntity, data: any): string {
-    return `We regret to inform you that the launch "${data.launch.name}" has been aborted.`;
+  writeMessage(): string {
+    return `We regret to inform you that the launch "${this.data.launch.name}" has been aborted.`;
   }
 }
 
 export class BookingConfirmedBuilder extends NotificationBuilder {
   // ... constructor ...
 
-  async loadData(event: EventDto): Promise<any> {
-    // Implement specific data loading for booking_confirmed event
-    const bookingId: string = event.data;
+  async loadData(): Promise<any> {
+    const bookingId: string = this.event.data;
     const booking = await this.entityManager.findOne('Booking', {
       id: bookingId,
     });
-    return { booking };
+    if (!booking) {
+      throw new Error(`Booking with id ${bookingId} not found`);
+    }
+    this.data = { booking };
+    this.userIds = [booking['user_id']];
+    return this.data;
   }
 
-  writeSubject(template: TemplateEntity, data: any): string {
-    return `Booking Confirmed: ${data.booking.launchName}`;
+  writeSubject(): string {
+    return `Booking Confirmed: ${this.data.booking.launchName}`;
   }
 
-  writeMessage(template: TemplateEntity, data: any): string {
-    return `Your booking for the launch "${data.booking.launchName}" has been confirmed.`;
+  writeMessage(): string {
+    return `Your booking for the launch "${this.data.booking.launchName}" has been confirmed.`;
   }
 }
 
 export class BookingCanceledBuilder extends NotificationBuilder {
   // ... constructor ...
 
-  async loadData(event: EventDto): Promise<any> {
-    // Implement specific data loading for booking_canceled event
-    const bookingId: string = event.data;
+  async loadData(): Promise<any> {
+    const bookingId: string = this.event.data;
     const booking = await this.entityManager.findOne('Booking', {
       id: bookingId,
     });
-    return { booking };
+    if (!booking) {
+      throw new Error(`Booking with id ${bookingId} not found`);
+    }
+    this.data = { booking };
+    this.userIds = [booking['user_id']];
+    return this.data;
   }
 
-  writeSubject(template: TemplateEntity, data: any): string {
-    return `Booking Canceled: ${data.booking.launchName}`;
+  writeSubject(): string {
+    return `Booking Canceled: ${this.data.booking.launchName}`;
   }
 
-  writeMessage(template: TemplateEntity, data: any): string {
-    return `Your booking for the launch "${data.booking.launchName}" has been canceled.`;
+  writeMessage(): string {
+    return `Your booking for the launch "${this.data.booking.launchName}" has been canceled.`;
   }
 }
 
 export class InvoiceIssuedBuilder extends NotificationBuilder {
   // ... constructor ...
 
-  async loadData(event: EventDto): Promise<any> {
-    // Implement specific data loading for invoice_issued event
-    const invoiceId: string = event.data;
+  async loadData(): Promise<any> {
+    const invoiceId: string = this.event.data;
     const invoice = await this.entityManager.findOne('Invoice', {
       id: invoiceId,
     });
-    return { invoice };
+    if (!invoice) {
+      throw new Error(`Invoice with id ${invoiceId} not found`);
+    }
+    this.data = { invoice };
+    this.userIds = [invoice['user_id']];
+    return this.data;
   }
 
-  writeSubject(template: TemplateEntity, data: any): string {
-    return `Invoice Issued: ${data.invoice.number}`;
+  writeSubject(): string {
+    return `Invoice Issued: ${this.data.invoice.number}`;
   }
 
-  writeMessage(template: TemplateEntity, data: any): string {
-    return `An invoice (${data.invoice.number}) has been issued for your recent booking. Total amount: ${data.invoice.amount}.`;
+  writeMessage(): string {
+    return `An invoice (${this.data.invoice.number}) has been issued for your recent booking. Total amount: ${this.data.invoice.amount}.`;
   }
 }

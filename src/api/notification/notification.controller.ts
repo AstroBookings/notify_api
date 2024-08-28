@@ -21,13 +21,13 @@ export class NotificationController {
   }
 
   /**
-   * Sends an event notification for related users.
-   * @param event - The event to send.
-   * @returns The notification that was sent.
+   * Save an event as an array of notifications for related users.
+   * @param event - The event to save.
+   * @returns The notifications that was created.
    */
   @Post()
-  async sendNotification(@Body() event: EventDto): Promise<Notification> {
+  async sendNotification(@Body() event: EventDto): Promise<Notification[]> {
     this.#logger.log(`🤖 Sending notification for event: ${event.name}`);
-    return await this.notificationService.saveNotification(event);
+    return await this.notificationService.saveNotifications(event);
   }
 }

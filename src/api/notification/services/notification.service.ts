@@ -28,28 +28,31 @@ export class NotificationService {
    * @param event - The event data for the notification.
    * @returns A promise that resolves to the saved notification.
    */
-  async saveNotification(event: EventDto): Promise<Notification> {
+  async saveNotifications(event: EventDto): Promise<Notification[]> {
     const notificationFactory = new NotificationFactory();
-    this.#logger.log(`🤖 notificationFactory: ${notificationFactory}`);
     const notificationBuilder: BuildNotifications =
       notificationFactory.createBuilder(
         event,
         this.templateRepository,
         this.entityManager,
       );
-    this.#logger.log(`🤖 notificationBuilder: ${notificationBuilder}`);
-    const notification: NotificationEntity = await notificationBuilder.build();
-    this.#logger.log(`🤖 notification: ${notification}`);
-    notification.id = this.idService.generateId();
-    await this.notificationRepository.insert(notification);
-    this.#logger.log(`🤖 notification inserted: ${notification}`);
-    return this.mapToNotification(notification);
+    const notifications: NotificationEntity[] =
+      await notificationBuilder.build();
+    await Promise.all(
+      notifications.map(async (notification: NotificationEntity) => {
+        notification.id = this.idService.generateId();
+        await this.notificationRepository.insert(notification);
+      }),
+    );
+    return notifications.map((notification: NotificationEntity) =>
+      this.mapToNotification(notification),
+    );
   }
 
   private mapToNotification(entity: NotificationEntity): Notification {
     return {
       id: entity.id,
-      recipientEmail: entity.recipientEmail,
+      userId: entity.userId,
       subject: entity.subject,
       message: entity.message,
     };
