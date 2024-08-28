@@ -14,10 +14,10 @@ import { BuildNotifications } from './notification.builder';
 import { TemplateEntity } from './template.entity';
 
 /**
- * NotificationFactory implements the Factory Method pattern.
+ * NotificationsBuilderFactory implements the Factory Method pattern.
  * It creates different types of notification builders based on the event type.
  */
-export class NotificationFactory {
+export class NotificationsBuilderFactory {
   /**
    * Creates and returns a specific notification builder based on the event type.
    * This is the core of the Factory Method pattern.
@@ -28,60 +28,28 @@ export class NotificationFactory {
    * @returns An instance of a class implementing BuildNotifications interface.
    * @throws Error if an unsupported event type is provided.
    */
-  createBuilder(
+  createNotificationsBuilder(
     event: EventDto,
     templateRepository: EntityRepository<TemplateEntity>,
     entityManager: EntityManager,
   ): BuildNotifications {
     switch (event.name) {
       case 'launch_scheduled':
-        return new LaunchScheduledBuilder(
-          event,
-          templateRepository,
-          entityManager,
-        );
+        return new LaunchScheduledBuilder(event, templateRepository, entityManager);
       case 'launch_confirmed':
-        return new LaunchConfirmedBuilder(
-          event,
-          templateRepository,
-          entityManager,
-        );
+        return new LaunchConfirmedBuilder(event, templateRepository, entityManager);
       case 'launch_launched':
-        return new LaunchLaunchedBuilder(
-          event,
-          templateRepository,
-          entityManager,
-        );
+        return new LaunchLaunchedBuilder(event, templateRepository, entityManager);
       case 'launch_delayed':
-        return new LaunchDelayedBuilder(
-          event,
-          templateRepository,
-          entityManager,
-        );
+        return new LaunchDelayedBuilder(event, templateRepository, entityManager);
       case 'launch_aborted':
-        return new LaunchAbortedBuilder(
-          event,
-          templateRepository,
-          entityManager,
-        );
+        return new LaunchAbortedBuilder(event, templateRepository, entityManager);
       case 'booking_confirmed':
-        return new BookingConfirmedBuilder(
-          event,
-          templateRepository,
-          entityManager,
-        );
+        return new BookingConfirmedBuilder(event, templateRepository, entityManager);
       case 'booking_canceled':
-        return new BookingCanceledBuilder(
-          event,
-          templateRepository,
-          entityManager,
-        );
+        return new BookingCanceledBuilder(event, templateRepository, entityManager);
       case 'invoice_issued':
-        return new InvoiceIssuedBuilder(
-          event,
-          templateRepository,
-          entityManager,
-        );
+        return new InvoiceIssuedBuilder(event, templateRepository, entityManager);
       default:
         throw new Error(`Unsupported event type: ${event.name}`);
     }

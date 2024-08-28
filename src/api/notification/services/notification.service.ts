@@ -6,7 +6,7 @@ import { EventDto } from '../models/event.dto';
 import { Notification } from '../models/notification.type';
 import { BuildNotifications } from './notification.builder';
 import { NotificationEntity } from './notification.entity';
-import { NotificationFactory } from './notification.factory';
+import { NotificationsBuilderFactory } from './notifications-builder.factory';
 import { TemplateEntity } from './template.entity';
 
 @Injectable()
@@ -29,24 +29,20 @@ export class NotificationService {
    * @returns A promise that resolves to the saved notification.
    */
   async saveNotifications(event: EventDto): Promise<Notification[]> {
-    const notificationFactory = new NotificationFactory();
-    const notificationBuilder: BuildNotifications =
-      notificationFactory.createBuilder(
-        event,
-        this.templateRepository,
-        this.entityManager,
-      );
-    const notifications: NotificationEntity[] =
-      await notificationBuilder.build();
+    const notificationFactory = new NotificationsBuilderFactory();
+    const notificationBuilder: BuildNotifications = notificationFactory.createNotificationsBuilder(
+      event,
+      this.templateRepository,
+      this.entityManager,
+    );
+    const notifications: NotificationEntity[] = await notificationBuilder.build();
     await Promise.all(
       notifications.map(async (notification: NotificationEntity) => {
         notification.id = this.idService.generateId();
         await this.notificationRepository.insert(notification);
       }),
     );
-    return notifications.map((notification: NotificationEntity) =>
-      this.mapToNotification(notification),
-    );
+    return notifications.map((notification: NotificationEntity) => this.mapToNotification(notification));
   }
 
   private mapToNotification(entity: NotificationEntity): Notification {

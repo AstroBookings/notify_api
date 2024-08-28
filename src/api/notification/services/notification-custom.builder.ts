@@ -3,345 +3,313 @@ import { EventDto } from '../models/event.dto';
 import { NotificationBuilder } from './notification.builder';
 import { TemplateEntity } from './template.entity';
 
+/**
+ * Builder for creating notifications when a launch is scheduled.
+ * @extends NotificationBuilder
+ * @description Builds a notification for each traveler associated with a launch.
+ */
 export class LaunchScheduledBuilder extends NotificationBuilder {
-  constructor(
-    event: EventDto,
-    templateRepository: EntityRepository<TemplateEntity>,
-    entityManager: EntityManager,
-  ) {
+  constructor(event: EventDto, templateRepository: EntityRepository<TemplateEntity>, entityManager: EntityManager) {
     super(event, templateRepository, entityManager);
   }
 
-  async loadData(): Promise<any> {
+  protected async loadData(): Promise<void> {
     const launchId: string = this.event.data;
-    // get launch data
-    const queryLaunch: string = `SELECT * FROM launches WHERE id = '${launchId}'`;
-    const launchesFound = await this.connection.execute(queryLaunch);
-    const launch = launchesFound[0];
+    const [launch]: any[] = await this.connection.execute(`SELECT * FROM launches WHERE id = ?`, [launchId]);
     if (!launch) {
       throw new Error(`Launch with id ${launchId} not found`);
     }
-    this.data['launch'] = launch;
-    // get bookings
-    const queryBookings: string = `SELECT * FROM bookings WHERE launch_id = '${launchId}'`;
-    const bookingsFound = await this.connection.execute(queryBookings);
-    const bookings = bookingsFound;
-    if (!bookings) {
-      return this.data;
-    }
-    // get user ids from bookings
-    this.userIds = bookings.map((booking: any) => booking['traveler_id']);
-    return this.data;
+    this.data = { launch };
+    const bookings: any[] = await this.connection.execute(`SELECT * FROM bookings WHERE launch_id = ?`, [launchId]);
+    this.userIds = bookings.map((booking: any): string => booking.traveler_id);
   }
 
   writeSubject(): string {
-    const placeholderData: Record<string, string> = {
+    this.subjectData = {
       destination: this.data['launch']['destination'],
     };
-    return this.replaceSubject(placeholderData);
+    return super.writeSubject();
   }
 
   writeMessage(): string {
-    const placeholderData: Record<string, string> = {
+    this.messageData = {
       destination: this.data['launch']['destination'],
       date: this.data['launch']['date'],
     };
-    return this.replaceMessage(placeholderData);
+    return super.writeMessage();
   }
 }
 
+/**
+ * Builder for creating notifications when a launch is confirmed.
+ * @extends NotificationBuilder
+ * @description Builds a notification for each traveler associated with a launch.
+ */
 export class LaunchConfirmedBuilder extends NotificationBuilder {
-  constructor(
-    event: EventDto,
-    templateRepository: EntityRepository<TemplateEntity>,
-    entityManager: EntityManager,
-  ) {
+  constructor(event: EventDto, templateRepository: EntityRepository<TemplateEntity>, entityManager: EntityManager) {
     super(event, templateRepository, entityManager);
   }
 
-  async loadData(): Promise<any> {
+  protected async loadData(): Promise<void> {
     const launchId: string = this.event.data;
-    const queryLaunch: string = `SELECT * FROM launches WHERE id = '${launchId}'`;
-    const launchesFound = await this.connection.execute(queryLaunch);
-    const launch = launchesFound[0];
+    const [launch]: any[] = await this.connection.execute(`SELECT * FROM launches WHERE id = ?`, [launchId]);
     if (!launch) {
       throw new Error(`Launch with id ${launchId} not found`);
     }
-    this.data['launch'] = launch;
+    this.data = { launch };
     this.userIds = [launch['agency_id']];
-    return this.data;
   }
 
   writeSubject(): string {
-    const placeholderData: Record<string, string> = {
+    this.subjectData = {
       destination: this.data['launch']['destination'],
       mission: this.data['launch']['mission'],
     };
-    return this.replaceSubject(placeholderData);
+    return super.writeSubject();
   }
 
   writeMessage(): string {
-    const placeholderData: Record<string, string> = {
+    this.messageData = {
       destination: this.data['launch']['destination'],
       date: this.data['launch']['date'],
       mission: this.data['launch']['mission'],
     };
-    return this.replaceMessage(placeholderData);
+    return super.writeMessage();
   }
 }
 
+/**
+ * Builder for creating notifications when a launch has been launched.
+ * @extends NotificationBuilder
+ * @description Builds a notification for each traveler associated with a launch.
+ */
 export class LaunchLaunchedBuilder extends NotificationBuilder {
-  constructor(
-    event: EventDto,
-    templateRepository: EntityRepository<TemplateEntity>,
-    entityManager: EntityManager,
-  ) {
+  constructor(event: EventDto, templateRepository: EntityRepository<TemplateEntity>, entityManager: EntityManager) {
     super(event, templateRepository, entityManager);
   }
 
-  async loadData(): Promise<any> {
+  protected async loadData(): Promise<void> {
     const launchId: string = this.event.data;
-    const queryLaunch: string = `SELECT * FROM launches WHERE id = '${launchId}'`;
-    const launchesFound = await this.connection.execute(queryLaunch);
-    const launch = launchesFound[0];
+    const [launch]: any[] = await this.connection.execute(`SELECT * FROM launches WHERE id = ?`, [launchId]);
     if (!launch) {
       throw new Error(`Launch with id ${launchId} not found`);
     }
-    this.data['launch'] = launch;
+    this.data = { launch };
     this.userIds = [launch['agency_id']];
-    return this.data;
   }
 
   writeSubject(): string {
-    const placeholderData: Record<string, string> = {
+    this.subjectData = {
       mission: this.data['launch']['mission'],
       destination: this.data['launch']['destination'],
     };
-    return this.replaceSubject(placeholderData);
+    return super.writeSubject();
   }
 
   writeMessage(): string {
-    const placeholderData: Record<string, string> = {
+    this.messageData = {
       mission: this.data['launch']['mission'],
       destination: this.data['launch']['destination'],
     };
-    return this.replaceMessage(placeholderData);
+    return super.writeMessage();
   }
 }
 
+/**
+ * Builder for creating notifications when a launch is delayed.
+ * @extends NotificationBuilder
+ * @description Builds a notification for each traveler associated with a launch.
+ */
 export class LaunchDelayedBuilder extends NotificationBuilder {
-  constructor(
-    event: EventDto,
-    templateRepository: EntityRepository<TemplateEntity>,
-    entityManager: EntityManager,
-  ) {
+  constructor(event: EventDto, templateRepository: EntityRepository<TemplateEntity>, entityManager: EntityManager) {
     super(event, templateRepository, entityManager);
   }
 
-  async loadData(): Promise<any> {
+  protected async loadData(): Promise<void> {
     const launchId: string = this.event.data;
-    const queryLaunch: string = `SELECT * FROM launches WHERE id = '${launchId}'`;
-    const launchesFound = await this.connection.execute(queryLaunch);
-    const launch = launchesFound[0];
+    const [launch]: any[] = await this.connection.execute(`SELECT * FROM launches WHERE id = ?`, [launchId]);
     if (!launch) {
       throw new Error(`Launch with id ${launchId} not found`);
     }
-    this.data['launch'] = launch;
+    this.data = { launch };
     this.userIds = [launch['agency_id']];
-    return this.data;
   }
 
   writeSubject(): string {
-    const placeholderData: Record<string, string> = {
+    this.subjectData = {
       mission: this.data['launch']['mission'],
       destination: this.data['launch']['destination'],
     };
-    return this.replaceSubject(placeholderData);
+    return super.writeSubject();
   }
 
   writeMessage(): string {
-    const placeholderData: Record<string, string> = {
+    this.messageData = {
       mission: this.data['launch']['mission'],
       destination: this.data['launch']['destination'],
       date: this.data['launch']['date'],
     };
-    return this.replaceMessage(placeholderData);
+    return super.writeMessage();
   }
 }
 
+/**
+ * Builder for creating notifications when a launch is aborted.
+ * @extends NotificationBuilder
+ * @description Builds a notification for each traveler associated with a launch.
+ */
 export class LaunchAbortedBuilder extends NotificationBuilder {
-  constructor(
-    event: EventDto,
-    templateRepository: EntityRepository<TemplateEntity>,
-    entityManager: EntityManager,
-  ) {
+  constructor(event: EventDto, templateRepository: EntityRepository<TemplateEntity>, entityManager: EntityManager) {
     super(event, templateRepository, entityManager);
   }
 
-  async loadData(): Promise<any> {
+  protected async loadData(): Promise<void> {
     const launchId: string = this.event.data;
-    const queryLaunch: string = `SELECT * FROM launches WHERE id = '${launchId}'`;
-    const launchesFound = await this.connection.execute(queryLaunch);
-    const launch = launchesFound[0];
+    const [launch]: any[] = await this.connection.execute(`SELECT * FROM launches WHERE id = ?`, [launchId]);
     if (!launch) {
       throw new Error(`Launch with id ${launchId} not found`);
     }
-    this.data['launch'] = launch;
+    this.data = { launch };
     this.userIds = [launch['agency_id']];
-    return this.data;
   }
 
   writeSubject(): string {
-    const placeholderData: Record<string, string> = {
+    this.subjectData = {
       mission: this.data['launch']['mission'],
       destination: this.data['launch']['destination'],
     };
-    return this.replaceSubject(placeholderData);
+    return super.writeSubject();
   }
 
   writeMessage(): string {
-    const placeholderData: Record<string, string> = {
+    this.messageData = {
       mission: this.data['launch']['mission'],
       destination: this.data['launch']['destination'],
     };
-    return this.replaceMessage(placeholderData);
+    return super.writeMessage();
   }
 }
 
+/**
+ * Builder for creating notifications when a booking is confirmed.
+ * @extends NotificationBuilder
+ * @description Builds a notification for the agency associated with the booking launch.
+ */
 export class BookingConfirmedBuilder extends NotificationBuilder {
-  constructor(
-    event: EventDto,
-    templateRepository: EntityRepository<TemplateEntity>,
-    entityManager: EntityManager,
-  ) {
+  constructor(event: EventDto, templateRepository: EntityRepository<TemplateEntity>, entityManager: EntityManager) {
     super(event, templateRepository, entityManager);
   }
 
-  async loadData(): Promise<any> {
+  protected async loadData(): Promise<void> {
     const bookingId: string = this.event.data;
-    // get booking
-    const queryBooking: string = `SELECT * FROM bookings WHERE id = '${bookingId}'`;
-    const bookingFound = await this.connection.execute(queryBooking);
-    const booking = bookingFound[0];
+    const [booking]: any[] = await this.connection.execute(`SELECT * FROM bookings WHERE id = ?`, [bookingId]);
     if (!booking) {
       throw new Error(`Booking with id ${bookingId} not found`);
     }
-    this.data['booking'] = booking;
-    // get launch from booking
-    const launchId = booking['launch_id'];
-    const queryLaunch: string = `SELECT * FROM launches WHERE id = '${launchId}'`;
-    const launchFound = await this.connection.execute(queryLaunch);
-    const launch = launchFound[0];
+    this.data = { booking };
+    const launchId: string = booking['launch_id'];
+    const [launch]: any[] = await this.connection.execute(`SELECT * FROM launches WHERE id = ?`, [launchId]);
     if (!launch) {
       throw new Error(`Launch with id ${launchId} not found`);
     }
     this.data['launch'] = launch;
-    // get user ids from launch
     this.userIds = [launch['agency_id']];
-    return this.data;
   }
 
   writeSubject(): string {
-    const placeholderData: Record<string, string> = {
+    this.subjectData = {
       mission: this.data['launch']['mission'],
       destination: this.data['launch']['destination'],
     };
-    return this.replaceSubject(placeholderData);
+    return super.writeSubject();
   }
 
   writeMessage(): string {
-    const placeholderData: Record<string, string> = {
+    this.messageData = {
       mission: this.data['launch']['mission'],
       destination: this.data['launch']['destination'],
       date: this.data['launch']['date'],
       number_of_seats: this.data['booking']['number_of_seats'],
     };
-    return this.replaceMessage(placeholderData);
+    return super.writeMessage();
   }
 }
 
+/**
+ * Builder for creating notifications when a booking is canceled.
+ * @extends NotificationBuilder
+ * @description Builds a notification for the traveler associated with the booking launch.
+ */
 export class BookingCanceledBuilder extends NotificationBuilder {
-  constructor(
-    event: EventDto,
-    templateRepository: EntityRepository<TemplateEntity>,
-    entityManager: EntityManager,
-  ) {
+  constructor(event: EventDto, templateRepository: EntityRepository<TemplateEntity>, entityManager: EntityManager) {
     super(event, templateRepository, entityManager);
   }
 
-  async loadData(): Promise<any> {
+  protected async loadData(): Promise<void> {
     const bookingId: string = this.event.data;
-    const queryBooking: string = `SELECT * FROM bookings WHERE id = '${bookingId}'`;
-    const bookingFound = await this.connection.execute(queryBooking);
-    const booking = bookingFound[0];
+    const [booking]: any[] = await this.connection.execute(`SELECT * FROM bookings WHERE id = ?`, [bookingId]);
     if (!booking) {
       throw new Error(`Booking with id ${bookingId} not found`);
     }
-    this.data['booking'] = booking;
-    // get launch from booking
-    const launchId = booking['launch_id'];
-    const queryLaunch: string = `SELECT * FROM launches WHERE id = '${launchId}'`;
-    const launchFound = await this.connection.execute(queryLaunch);
-    const launch = launchFound[0];
+    this.data = { booking };
+    const launchId: string = booking['launch_id'];
+    const [launch]: any[] = await this.connection.execute(`SELECT * FROM launches WHERE id = ?`, [launchId]);
     if (!launch) {
       throw new Error(`Launch with id ${launchId} not found`);
     }
     this.data['launch'] = launch;
     this.userIds = [booking['traveler_id']];
-    return this.data;
   }
 
   writeSubject(): string {
-    const placeholderData: Record<string, string> = {
+    this.subjectData = {
       mission: this.data['launch']['mission'],
       destination: this.data['launch']['destination'],
     };
-    return this.replaceSubject(placeholderData);
+    return super.writeSubject();
   }
 
   writeMessage(): string {
-    const placeholderData: Record<string, string> = {
+    this.messageData = {
       mission: this.data['launch']['mission'],
       destination: this.data['launch']['destination'],
     };
-    return this.replaceMessage(placeholderData);
+    return super.writeMessage();
   }
 }
 
+/**
+ * Builder for creating notifications when an invoice is issued.
+ * @extends NotificationBuilder
+ * @description Builds a notification for the agency associated with the invoice.
+ */
 export class InvoiceIssuedBuilder extends NotificationBuilder {
-  constructor(
-    event: EventDto,
-    templateRepository: EntityRepository<TemplateEntity>,
-    entityManager: EntityManager,
-  ) {
+  constructor(event: EventDto, templateRepository: EntityRepository<TemplateEntity>, entityManager: EntityManager) {
     super(event, templateRepository, entityManager);
   }
 
-  async loadData(): Promise<any> {
+  protected async loadData(): Promise<void> {
     const invoiceId: string = this.event.data;
-    const queryInvoice: string = `SELECT * FROM invoices WHERE id = '${invoiceId}'`;
-    const invoiceFound = await this.connection.execute(queryInvoice);
-    const invoice = invoiceFound[0];
+    const [invoice]: any[] = await this.connection.execute(`SELECT * FROM invoices WHERE id = ?`, [invoiceId]);
     if (!invoice) {
       throw new Error(`Invoice with id ${invoiceId} not found`);
     }
-    this.data['invoice'] = invoice;
+    this.data = { invoice };
     this.userIds = [invoice['agency_id']];
-    return this.data;
   }
 
   writeSubject(): string {
-    const placeholderData: Record<string, string> = {
+    this.subjectData = {
       number: this.data['invoice']['number'],
     };
-    return this.replaceSubject(placeholderData);
+    return super.writeSubject();
   }
 
   writeMessage(): string {
-    const placeholderData: Record<string, string> = {
+    this.messageData = {
       number: this.data['invoice']['number'],
       amount: this.data['invoice']['amount'],
     };
-    return this.replaceMessage(placeholderData);
+    return super.writeMessage();
   }
 }

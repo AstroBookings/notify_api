@@ -6,10 +6,7 @@ import { NotificationService } from './notification.service';
 import { TemplateEntity } from './template.entity';
 
 @Module({
-  imports: [
-    MikroOrmModule.forFeature([NotificationEntity, TemplateEntity]),
-    SharedModule,
-  ],
+  imports: [MikroOrmModule.forFeature([NotificationEntity, TemplateEntity]), SharedModule],
   providers: [NotificationService],
   exports: [NotificationService],
 })

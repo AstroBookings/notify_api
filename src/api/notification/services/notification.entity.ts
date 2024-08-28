@@ -50,6 +50,9 @@ export class NotificationEntity {
   @Property({ type: 'text' })
   status!: NotificationStatus;
 
+  /**
+   * Template Entity associated with the notification
+   */
   @ManyToOne(() => TemplateEntity)
   template!: TemplateEntity;
 }
