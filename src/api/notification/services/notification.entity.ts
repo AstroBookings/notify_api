@@ -45,6 +45,12 @@ export class NotificationEntity {
   createdAt!: Date;
 
   /**
+   * Timestamp of the last update
+   */
+  @Property({ fieldName: 'updated_at' })
+  updatedAt: Date = new Date();
+
+  /**
    * Status of the notification
    */
   @Property({ type: 'text' })

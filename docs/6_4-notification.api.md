@@ -6,8 +6,10 @@
 
 ### 4.1 Send launch-related notifications to agencies
 
+> 📋 ToDo: reformulate feature with scenarios, based on current implementation
+
 ```gherkin
-Feature: Send launch-related notifications to agencies
+Feature: Send launch-related (bookings, invoices) notifications to agencies
   As an agency, I want to receive notifications about launch-related events, so that I can stay informed about the status of my launches.
 
   Scenario: Send a notification about a launch status change
@@ -19,6 +21,45 @@ Feature: Send launch-related notifications to agencies
     And the notification data to be sent to the agency
         | recipient_email | subject | message |
         | "agency@example.com" | "New booking for your launch" | "You have a new booking for launch 1" |
+
+  Scenario: Send a notification about a launch status change
+    As a Traveler, I want to receive a notification about a launch status change, so that I can stay informed about the status of my launch.
+
+    Given the API is available
+    When the system sends a POST request to "/api/notification/" with the following data:
+      | event |  data |
+      | "launch_scheduled" |  "1" |
+    Then the response should have a status code of 200
+    And the notification data to be sent to the traveler
+        | recipient_email | subject | message |
+        | "agency@example.com" | "New launch scheduled" | "You have a new launch scheduled for launch 1" |
+
+Feature: Get all pending notifications
+  As an IT employee, I want to get all pending notifications, so that I can send them.
+
+  Scenario: Get all pending notifications
+    Given the API is available
+    When the system sends a GET request to "/api/notification/pending"
+    Then the response should have a status code of 200
+    And the notifications data to be sent to the user
+
+Feature: Send a notification
+  As an IT employee, I want to send a notification to a user, so that I can inform them about an event.
+
+  Scenario: Send a notification to a user
+    Given the API is available
+    When the system sends a POST request to "/api/notification/id/send"
+    Then the response should have a status code of 200
+    And the notification should be saved with status "sent"
+
+Feature: Show pending notifications for a user
+  As a user, I want to see my pending notifications, so that I can stay informed about the status of my launches.
+
+  Scenario: Get pending notifications for a user
+    Given the API is available
+    When the system sends a GET request to "/api/notification/user/pending"
+    Then the response should have a status code of 200
+    And the notifications data to be sent to the user
 ```
 
 ## NestJs Implementation
@@ -39,7 +80,7 @@ npm i @nestjs/jwt @nestjs/passport passport passport-jwt
 npm i snowyflake
 ```
 
-Core artifacts and and shared module.
+Core artifacts and shared module.
 
 > Will be part of a library in the future
 

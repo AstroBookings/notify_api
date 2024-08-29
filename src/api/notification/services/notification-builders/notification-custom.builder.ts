@@ -1,7 +1,7 @@
 import { EntityManager, EntityRepository } from '@mikro-orm/core';
-import { EventDto } from '../models/event.dto';
+import { EventDto } from '../../models/event.dto';
+import { TemplateEntity } from '../template.entity';
 import { NotificationBuilder } from './notification.builder';
-import { TemplateEntity } from './template.entity';
 
 /**
  * Builder for creating notifications when a launch is scheduled.
@@ -20,8 +20,11 @@ export class LaunchScheduledBuilder extends NotificationBuilder {
       throw new Error(`Launch with id ${launchId} not found`);
     }
     this.data = { launch };
-    const bookings: any[] = await this.connection.execute(`SELECT * FROM bookings WHERE launch_id = ?`, [launchId]);
-    this.userIds = bookings.map((booking: any): string => booking.traveler_id);
+    // A VIP traveler is one with one previous booking for any launch
+    const vipTravelers: any[] = await this.connection.execute(
+      `SELECT traveler_id FROM bookings GROUP BY traveler_id HAVING COUNT(*) > 1`,
+    );
+    this.userIds = vipTravelers.map((traveler: any): string => traveler.traveler_id);
   }
 
   writeSubject(): string {

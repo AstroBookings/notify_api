@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Logger, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Logger, Param, Post } from '@nestjs/common';
 import { EventDto } from './models/event.dto';
 import { Notification } from './models/notification.type';
 import { NotificationService } from './services/notification.service';
@@ -8,7 +8,7 @@ import { NotificationService } from './services/notification.service';
  * @description Endpoints for sending notifications
  * @requires NotificationService for logic and database access
  */
-@Controller('notification')
+@Controller('api/notification')
 export class NotificationController {
   readonly #logger = new Logger(NotificationController.name);
   constructor(private readonly notificationService: NotificationService) {
@@ -26,8 +26,25 @@ export class NotificationController {
    * @returns The notifications that was created.
    */
   @Post()
-  async sendNotification(@Body() event: EventDto): Promise<Notification[]> {
-    this.#logger.log(`🤖 Sending notification for event: ${event.name}`);
+  async saveNotifications(@Body() event: EventDto): Promise<Notification[]> {
+    this.#logger.log(`🤖 Saving notification for event: ${event.name}`);
     return await this.notificationService.saveNotifications(event);
+  }
+
+  /**
+   * Get all pending notifications, ordered by creation date (oldest first).
+   * @returns An array of all pending notifications.
+   */
+  @Get('pending')
+  async getPendingNotifications(): Promise<Notification[]> {
+    this.#logger.log('🤖 Fetching all pending notifications');
+    return await this.notificationService.getPendingNotifications();
+  }
+
+  @Post(':id/send')
+  @HttpCode(200)
+  async sendNotification(@Param('id') id: string): Promise<Notification> {
+    this.#logger.log(`🤖 Sending notification with id: ${id}`);
+    return this.notificationService.sendNotification(id);
   }
 }

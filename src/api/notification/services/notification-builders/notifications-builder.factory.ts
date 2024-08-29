@@ -1,5 +1,6 @@
 import { EntityManager, EntityRepository } from '@mikro-orm/core';
-import { EventDto } from '../models/event.dto';
+import { EventDto } from '../../models/event.dto';
+import { TemplateEntity } from '../template.entity';
 import {
   BookingCanceledBuilder,
   BookingConfirmedBuilder,
@@ -11,7 +12,6 @@ import {
   LaunchScheduledBuilder,
 } from './notification-custom.builder';
 import { BuildNotifications } from './notification.builder';
-import { TemplateEntity } from './template.entity';
 
 /**
  * NotificationsBuilderFactory implements the Factory Method pattern.
