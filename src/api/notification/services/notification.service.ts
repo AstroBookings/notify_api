@@ -72,7 +72,9 @@ export class NotificationService {
     // 📋 ToDo: Send mail, sms, etc.Save status when sent or failed
     notification.status = 'sent';
     notification.updatedAt = new Date();
-    await this.notificationRepository.upsert(notification);
+    const result = await this.notificationRepository.upsert(notification);
+    await this.entityManager.flush();
+    console.log('🚀 ~ NotificationService ~ sendNotification ~ result:', result);
     return this.#mapToNotification(notification);
   }
 

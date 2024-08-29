@@ -38,7 +38,6 @@ describe('Notification Controller (e2e)', () => {
       };
       const response = await req.post('/api/notification').send(inputEvent).expect(201);
       expect(response.body).toHaveLength(1);
-      console.log(response.body);
     });
     it('should save an invoice_issued notification event', async () => {
       const inputEvent: EventDto = {
@@ -46,7 +45,6 @@ describe('Notification Controller (e2e)', () => {
         data: 'inv_1',
       };
       const response = await req.post('/api/notification').send(inputEvent).expect(201);
-      console.log(response.body);
     });
     it('should not send, yet, a booking_canceled notification event', async () => {
       const inputEvent: EventDto = {
