@@ -1,4 +1,6 @@
-import { Body, Controller, Get, HttpCode, Logger, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Logger, Param, Post, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../../core/jwt-auth.guard';
+import { User } from '../../core/user.decorator';
 import { EventDto } from './models/event.dto';
 import { Notification } from './models/notification.type';
 import { NotificationService } from './services/notification.service';
@@ -38,6 +40,18 @@ export class NotificationController {
   @Get('pending')
   async getPendingNotifications(): Promise<Notification[]> {
     this.#logger.log('🤖 Fetching all pending notifications');
+    return await this.notificationService.getPendingNotifications();
+  }
+
+  /**
+   * Get all pending notifications, ordered by creation date (oldest first).
+   * @returns An array of all pending notifications.
+   */
+  @Get('user/pending')
+  @UseGuards(JwtAuthGuard)
+  async getUserPendingNotifications(@User('id') userId: string): Promise<Notification[]> {
+    this.#logger.log(`🤖 Fetching all pending notifications for user: ${userId}`);
+    // Todo: filter for the user, and return only top 10 recent notifications
     return await this.notificationService.getPendingNotifications();
   }
 
