@@ -2,6 +2,7 @@ import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { PostgreSqlDriver } from '@mikro-orm/postgresql';
 import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { JwtModule, JwtService } from '@nestjs/jwt';
+import { AdminModule } from './api/admin/admin.module';
 import { NotificationModule } from './api/notification/notification.module';
 import { NotificationEntity } from './api/notification/services/notification.entity';
 import { TemplateEntity } from './api/notification/services/template.entity';
@@ -21,7 +22,7 @@ const postgresConfig = {
 };
 
 @Module({
-  imports: [MikroOrmModule.forRoot(postgresConfig), NotificationModule, JwtModule],
+  imports: [MikroOrmModule.forRoot(postgresConfig), NotificationModule, JwtModule, AdminModule],
   providers: [JwtAuthGuard, JwtService],
 })
 export class AppModule {

@@ -1,16 +1,5 @@
 -- Create AstroBookings Operations Schema
 
--- Drop existing tables
-DROP TABLE IF EXISTS notifications CASCADE;
-DROP TABLE IF EXISTS templates CASCADE;
-DROP TABLE IF EXISTS payments CASCADE;
-DROP TABLE IF EXISTS invoices CASCADE;
-DROP TABLE IF EXISTS bookings CASCADE;
-DROP TABLE IF EXISTS launches CASCADE;
-DROP TABLE IF EXISTS rockets CASCADE;
-DROP TABLE IF EXISTS agencies CASCADE;
-DROP TABLE IF EXISTS travelers CASCADE;
-
 -- Travelers Table
 CREATE TABLE IF NOT EXISTS travelers (
   user_id TEXT PRIMARY KEY,

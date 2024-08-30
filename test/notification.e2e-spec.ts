@@ -35,13 +35,26 @@ describe('Notification Controller (e2e)', () => {
     password: 'Password@123',
   };
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
     await app.init();
+
+    // Regenerate the database before all tests
+    await request(app.getHttpServer())
+      .post('/api/admin/regenerate-db')
+      .expect(200)
+      .expect((response) => {
+        expect(response.body.status).toBe('success');
+        expect(response.body.message).toBe('Database regenerated successfully');
+      });
+  });
+
+  afterAll(async () => {
+    await app.close();
   });
 
   it('/ (GET)', () => {
