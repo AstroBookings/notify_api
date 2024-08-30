@@ -50,9 +50,8 @@ export class NotificationController {
   @Get('user/pending')
   @UseGuards(JwtAuthGuard)
   async getUserPendingNotifications(@User('id') userId: string): Promise<Notification[]> {
-    this.#logger.log(`🤖 Fetching all pending notifications for user: ${userId}`);
-    // Todo: filter for the user, and return only top 10 recent notifications
-    return await this.notificationService.getPendingNotifications();
+    this.#logger.log(`🤖 Fetching top 10 pending notifications for user: ${userId}`);
+    return await this.notificationService.getUserPendingNotifications(userId);
   }
 
   @Post(':id/send')

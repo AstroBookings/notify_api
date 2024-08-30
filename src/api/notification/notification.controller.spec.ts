@@ -1,3 +1,4 @@
+import { JwtModule } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Notification } from './models/notification.type';
 import { NotificationController } from './notification.controller';
@@ -9,12 +10,15 @@ describe('NotificationController', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [JwtModule],
       controllers: [NotificationController],
       providers: [
         {
           provide: NotificationService,
           useValue: {
+            saveNotifications: jest.fn(),
             getPendingNotifications: jest.fn(),
+            getUserPendingNotifications: jest.fn(),
             sendNotification: jest.fn(),
           },
         },
@@ -73,6 +77,21 @@ describe('NotificationController', () => {
 
       expect(result).toEqual(mockNotification);
       expect(service.sendNotification).toHaveBeenCalledWith('123');
+    });
+  });
+
+  describe('getUserPendingNotifications', () => {
+    it('should return top 10 pending notifications for user', async () => {
+      const userId = 'user123';
+      const expectedNotifications: Notification[] = [
+        { id: '1', userId, subject: 'Test', message: 'Test message', status: 'pending' },
+      ];
+      jest.spyOn(service, 'getUserPendingNotifications').mockResolvedValue(expectedNotifications);
+
+      const result = await controller.getUserPendingNotifications(userId);
+
+      expect(result).toEqual(expectedNotifications);
+      expect(service.getUserPendingNotifications).toHaveBeenCalledWith(userId);
     });
   });
 });

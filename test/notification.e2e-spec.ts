@@ -149,6 +149,14 @@ describe('Notification Controller (e2e)', () => {
         .expect(200)
         .expect((response) => {
           expect(Array.isArray(response.body)).toBe(true);
+          console.log(response.body);
+          if (response.body.length > 0) {
+            const userId = response.body[0].userId;
+            response.body.forEach((notification: any) => {
+              expect(notification).toHaveProperty('userId', userId);
+              expect(notification).toHaveProperty('status', 'pending');
+            });
+          }
         });
     });
   });

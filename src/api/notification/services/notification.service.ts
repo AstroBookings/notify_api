@@ -78,6 +78,14 @@ export class NotificationService {
     return this.#mapToNotification(notification);
   }
 
+  async getUserPendingNotifications(userId: string): Promise<Notification[]> {
+    const pendingNotifications = await this.notificationRepository.find(
+      { userId, status: 'pending' },
+      { orderBy: { createdAt: 'ASC' }, limit: 10 },
+    );
+    return pendingNotifications.map(this.#mapToNotification);
+  }
+
   #mapToNotification(entity: NotificationEntity): Notification {
     return {
       id: entity.id,
