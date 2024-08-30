@@ -83,6 +83,15 @@ export class NotificationService {
       { userId, status: 'pending' },
       { orderBy: { createdAt: 'ASC' }, limit: 10 },
     );
+
+    await Promise.all(
+      pendingNotifications.map(async (notification) => {
+        notification.status = 'read';
+        notification.updatedAt = new Date();
+        await this.notificationRepository.upsert(notification);
+      }),
+    );
+    await this.entityManager.flush();
     return pendingNotifications.map(this.#mapToNotification);
   }
 
