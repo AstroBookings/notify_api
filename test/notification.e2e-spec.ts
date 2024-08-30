@@ -7,6 +7,7 @@ import { AppModule } from '../src/app.module';
 describe('Notification Controller (e2e)', () => {
   let app: INestApplication;
   let endPoint: string = '/api/notification';
+  const authEndpoint = 'http://localhost:3000/api/authentication';
   const inputLaunchEvent: EventDto = {
     name: 'launch_scheduled',
     data: 'lnch_2',
@@ -23,16 +24,15 @@ describe('Notification Controller (e2e)', () => {
     name: 'booking_canceled',
     data: 'not_existing_event',
   };
-  const authEndpoint = 'http://localhost:3000/api/authentication';
   const inputRegisterUser = {
     name: 'John Doe',
-    email: 'john.doe@test.dev',
-    password: 'Password@123',
+    email: 'john.doe@email.com',
+    password: 'Password@1',
     role: 'traveler',
   };
   const inputLoginUser = {
-    email: 'john.doe@test.dev',
-    password: 'Password@123',
+    email: 'john.doe@email.com',
+    password: 'Password@1',
   };
 
   beforeAll(async () => {
