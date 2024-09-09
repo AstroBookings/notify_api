@@ -1,5 +1,5 @@
 import { Entity, OneToMany, PrimaryKey, Property } from '@mikro-orm/core';
-import { TemplateEvent } from '../models/template-event.type';
+import { TemplateEvent } from '../models/template-event.enum';
 import { NotificationEntity } from './notification.entity';
 
 @Entity({ tableName: 'templates' })

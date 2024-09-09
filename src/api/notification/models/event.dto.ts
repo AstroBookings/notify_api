@@ -1,8 +1,8 @@
 import { IsNotEmpty, IsObject, IsString } from 'class-validator';
-import { TemplateEvent } from './template-event.type';
+import { TemplateEvent } from './template-event.enum';
 /**
- * Event DTO
- * @description DTO for event data
+ * Event DTO with something to notify
+ * @description The template name and data asociated
  */
 export class EventDto {
   @IsString()
