@@ -1,8 +1,8 @@
+import { EventDto } from '@api/notification/models/event.dto';
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { EventDto } from 'src/api/notification/models/event.dto';
+import { AppModule } from '@src/app.module';
 import * as request from 'supertest';
-import { AppModule } from '../src/app.module';
 
 describe('Notification Controller (e2e)', () => {
   let app: INestApplication;

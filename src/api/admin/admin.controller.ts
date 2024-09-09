@@ -2,7 +2,7 @@ import { Controller, HttpCode, Logger, Post } from '@nestjs/common';
 import { AdminService } from './admin.service';
 
 /**
- * AdminController
+ * Admin Controller
  * @description Controller for administrative endpoints
  */
 @Controller('api/admin')

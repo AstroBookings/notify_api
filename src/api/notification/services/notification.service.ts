@@ -1,9 +1,9 @@
+import { EventDto } from '@api/notification/models/event.dto';
+import { Notification } from '@api/notification/models/notification.type';
 import { EntityManager, EntityRepository } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { IdService } from '../../../shared/id.service';
-import { EventDto } from '../models/event.dto';
-import { Notification } from '../models/notification.type';
+import { IdService } from '@shared/id.service';
 import { BuildNotifications } from './notification-builders/notification.builder';
 import { NotificationsBuilderFactory } from './notification-builders/notifications-builder.factory';
 import { NotificationEntity } from './notification.entity';
@@ -12,6 +12,7 @@ import { TemplateEntity } from './template.entity';
 @Injectable()
 export class NotificationService {
   readonly #logger = new Logger(NotificationService.name);
+
   constructor(
     @InjectRepository(NotificationEntity)
     private readonly notificationRepository: EntityRepository<NotificationEntity>,
@@ -74,16 +75,19 @@ export class NotificationService {
     notification.updatedAt = new Date();
     const result = await this.notificationRepository.upsert(notification);
     await this.entityManager.flush();
-    console.log('🚀 ~ NotificationService ~ sendNotification ~ result:', result);
     return this.#mapToNotification(notification);
   }
 
+  /**
+   * Retrieves the pending notifications for a specific user.
+   * @param userId - The ID of the user to retrieve pending notifications for.
+   * @returns A promise that resolves to an array of pending notifications for the user.
+   */
   async getUserPendingNotifications(userId: string): Promise<Notification[]> {
     const pendingNotifications = await this.notificationRepository.find(
       { userId, status: 'pending' },
       { orderBy: { createdAt: 'ASC' }, limit: 10 },
     );
-
     await Promise.all(
       pendingNotifications.map(async (notification) => {
         notification.status = 'read';

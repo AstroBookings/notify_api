@@ -1,13 +1,13 @@
+import { AdminModule } from '@api/admin/admin.module';
+import { NotificationModule } from '@api/notification/notification.module';
+import { NotificationEntity } from '@api/notification/services/notification.entity';
+import { TemplateEntity } from '@api/notification/services/template.entity';
+import { JwtAuthGuard } from '@core/jwt-auth.guard';
+import { LoggerMiddleware } from '@core/logger.middleware';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { PostgreSqlDriver } from '@mikro-orm/postgresql';
 import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { JwtModule, JwtService } from '@nestjs/jwt';
-import { AdminModule } from './api/admin/admin.module';
-import { NotificationModule } from './api/notification/notification.module';
-import { NotificationEntity } from './api/notification/services/notification.entity';
-import { TemplateEntity } from './api/notification/services/template.entity';
-import { JwtAuthGuard } from './core/jwt-auth.guard';
-import { LoggerMiddleware } from './core/logger.middleware';
 
 // Configuration for Postgres Database
 const postgresConfig = {

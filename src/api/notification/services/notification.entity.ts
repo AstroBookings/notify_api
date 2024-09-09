@@ -1,5 +1,5 @@
+import { NotificationStatus } from '@api/notification/models/notification-status.enum';
 import { Entity, ManyToOne, PrimaryKey, Property } from '@mikro-orm/core';
-import { NotificationStatus } from '../models/notification-status.enum';
 import { TemplateEntity } from './template.entity';
 
 /**

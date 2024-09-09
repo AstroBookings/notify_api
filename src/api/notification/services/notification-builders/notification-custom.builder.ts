@@ -1,6 +1,6 @@
+import { EventDto } from '@api/notification/models/event.dto';
+import { TemplateEntity } from '@api/notification/services/template.entity';
 import { EntityManager, EntityRepository } from '@mikro-orm/core';
-import { EventDto } from '../../models/event.dto';
-import { TemplateEntity } from '../template.entity';
 import { NotificationBuilder } from './notification.builder';
 
 /**

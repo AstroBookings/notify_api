@@ -1,8 +1,8 @@
+import { EventDto } from '@api/notification/models/event.dto';
+import { NotificationEntity } from '@api/notification/services/notification.entity';
+import { TemplateEntity } from '@api/notification/services/template.entity';
 import { EntityManager, EntityRepository } from '@mikro-orm/core';
 import { NotFoundException } from '@nestjs/common';
-import { EventDto } from '../../models/event.dto';
-import { NotificationEntity } from '../notification.entity';
-import { TemplateEntity } from '../template.entity';
 
 /**
  * BuildNotifications interface defines the contract for notification builders.
