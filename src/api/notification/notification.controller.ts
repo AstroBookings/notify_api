@@ -14,12 +14,12 @@ import { NotificationService } from './services/notification.service';
 export class NotificationController {
   readonly #logger = new Logger(NotificationController.name);
   constructor(private readonly notificationService: NotificationService) {
-    this.#logger.debug('🚀  initialized');
+    this.#logger.verbose('🚀  initialized');
   }
 
-  @Get('test')
-  async test(): Promise<string> {
-    return 'Hello World!';
+  @Get('ping')
+  async ping(): Promise<string> {
+    return 'pong';
   }
 
   /**
@@ -29,7 +29,7 @@ export class NotificationController {
    */
   @Post()
   async saveNotifications(@Body() event: EventDto): Promise<Notification[]> {
-    this.#logger.log(`🧑‍🚀 Saving notification for event: ${event.name}`);
+    this.#logger.verbose(`🤖 Saving notification for event: ${event.name}`);
     return await this.notificationService.saveNotifications(event);
   }
 
@@ -39,7 +39,7 @@ export class NotificationController {
    */
   @Get('pending')
   async getPendingNotifications(): Promise<Notification[]> {
-    this.#logger.log('🧑‍🚀 Fetching all pending notifications');
+    this.#logger.verbose('🤖 Fetching all pending notifications');
     return await this.notificationService.getPendingNotifications();
   }
 
@@ -50,14 +50,19 @@ export class NotificationController {
   @Get('user/pending')
   @UseGuards(JwtAuthGuard)
   async getUserPendingNotifications(@User('id') userId: string): Promise<Notification[]> {
-    this.#logger.log(`🧑‍🚀 Fetching and marking as read top 10 pending notifications for user: ${userId}`);
+    this.#logger.verbose(`🤖 Fetching and marking as read top 10 pending notifications for user: ${userId}`);
     return await this.notificationService.getUserPendingNotifications(userId);
   }
 
   @Post(':id/send')
   @HttpCode(200)
   async sendNotification(@Param('id') id: string): Promise<Notification> {
-    this.#logger.log(`🧑‍🚀 Sending notification with id: ${id}`);
-    return this.notificationService.sendNotification(id);
+    this.#logger.verbose(`🤖 Sending notification with id: ${id}`);
+    try {
+      return this.notificationService.sendNotification(id);
+    } catch (error) {
+      this.#logger.debug(`👽 Error sending notification with id: ${id}`, error);
+      throw error;
+    }
   }
 }

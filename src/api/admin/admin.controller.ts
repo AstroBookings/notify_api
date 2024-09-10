@@ -8,7 +8,10 @@ import { AdminService } from './admin.service';
 @Controller('api/admin')
 export class AdminController {
   readonly #logger = new Logger(AdminController.name);
-  constructor(private readonly adminService: AdminService) {}
+
+  constructor(private readonly adminService: AdminService) {
+    this.#logger.verbose('🚀  initialized');
+  }
 
   /**
    * Regenerates the database
@@ -17,7 +20,7 @@ export class AdminController {
   @Post('regenerate-db')
   @HttpCode(200)
   async regenerateDatabase(): Promise<{ status: string; message: string }> {
-    this.#logger.log('🧑‍🚀 Regenerating database');
+    this.#logger.verbose('� Regenerating database');
     return this.adminService.regenerateDatabase();
   }
 
@@ -28,7 +31,7 @@ export class AdminController {
   @Post('test')
   @HttpCode(200)
   async adminTest(): Promise<{ status: string; message: string }> {
-    this.#logger.log('🧑‍🚀 Testing admin module');
+    this.#logger.verbose('🤖 Testing admin module');
     return this.adminService.adminTest();
   }
 }

@@ -21,7 +21,7 @@ export class NotificationService {
     private readonly entityManager: EntityManager,
     private readonly idService: IdService,
   ) {
-    this.#logger.debug('🚀  initialized');
+    this.#logger.verbose('🚀  initialized');
   }
 
   /**
@@ -68,6 +68,7 @@ export class NotificationService {
   async sendNotification(id: string): Promise<Notification> {
     const notification = await this.notificationRepository.findOne({ id, status: 'pending' });
     if (!notification) {
+      this.#logger.debug(`👽 Pending notification with id ${id} not found`);
       throw new NotFoundException(`Pending notification with id ${id} not found`);
     }
     // 📋 ToDo: Send mail, sms, etc.Save status when sent or failed

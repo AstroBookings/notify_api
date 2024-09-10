@@ -6,7 +6,8 @@ import * as request from 'supertest';
 
 describe('Notification Controller (e2e)', () => {
   let app: INestApplication;
-  let endPoint: string = '/api/notification';
+  const notificationEndPoint: string = '/api/notification';
+  const adminEndPoint: string = '/api/admin';
   const authEndpoint = 'http://localhost:3000/api/authentication';
   const inputLaunchEvent: EventDto = {
     name: 'launch_scheduled',
@@ -36,18 +37,22 @@ describe('Notification Controller (e2e)', () => {
   };
 
   beforeAll(async () => {
+    // Arrange
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+      .setLogger(console)
+      .compile();
 
     app = moduleFixture.createNestApplication();
     await app.init();
 
-    // Regenerate the database before all tests
+    // Act
     await request(app.getHttpServer())
-      .post('/api/admin/regenerate-db')
+      .post(`${adminEndPoint}/regenerate-db`)
       .expect(200)
       .expect((response) => {
+        // Assert
         expect(response.body.status).toBe('success');
         expect(response.body.message).toBe('Database regenerated successfully');
       });
@@ -57,14 +62,24 @@ describe('Notification Controller (e2e)', () => {
     await app.close();
   });
 
-  it('/ (GET)', () => {
-    return request(app.getHttpServer()).get(`${endPoint}/test`).expect(200).expect('Hello World!');
+  describe('GET /notification/ping', () => {
+    it('should return pong', () => {
+      // Arrange
+      const pingUrl = `${notificationEndPoint}/ping`;
+
+      // Act & Assert
+      return request(app.getHttpServer()).get(pingUrl).expect(200).expect('pong');
+    });
   });
 
   describe('POST /notification', () => {
     it('should save a launch_scheduled notification event', () => {
+      // Arrange
+      const url = notificationEndPoint;
+
+      // Act & Assert
       return request(app.getHttpServer())
-        .post(endPoint)
+        .post(url)
         .send(inputLaunchEvent)
         .expect(201)
         .expect((response) => {
@@ -73,8 +88,12 @@ describe('Notification Controller (e2e)', () => {
     });
 
     it('should save a booking_confirmed notification event', () => {
+      // Arrange
+      const url = notificationEndPoint;
+
+      // Act & Assert
       return request(app.getHttpServer())
-        .post(endPoint)
+        .post(url)
         .send(inputBookingEvent)
         .expect(201)
         .expect((response) => {
@@ -83,12 +102,20 @@ describe('Notification Controller (e2e)', () => {
     });
 
     it('should save an invoice_issued notification event', () => {
-      return request(app.getHttpServer()).post(endPoint).send(inputInvoiceEvent).expect(201);
+      // Arrange
+      const url = notificationEndPoint;
+
+      // Act & Assert
+      return request(app.getHttpServer()).post(url).send(inputInvoiceEvent).expect(201);
     });
 
     it('should not send, yet, a booking_canceled notification event', () => {
+      // Arrange
+      const url = notificationEndPoint;
+
+      // Act & Assert
       return request(app.getHttpServer())
-        .post(endPoint)
+        .post(url)
         .send(inputInvalidEvent)
         .expect(404)
         .expect((response) => {
@@ -101,13 +128,18 @@ describe('Notification Controller (e2e)', () => {
     let inputNotificationId: string;
 
     beforeEach(async () => {
-      const response = await request(app.getHttpServer()).post(endPoint).send(inputLaunchEvent).expect(201);
+      // Arrange
+      const response = await request(app.getHttpServer()).post(notificationEndPoint).send(inputLaunchEvent).expect(201);
       inputNotificationId = response.body[0].id;
     });
 
     it('should send a notification', () => {
+      // Arrange
+      const url = `${notificationEndPoint}/${inputNotificationId}/send`;
+
+      // Act & Assert
       return request(app.getHttpServer())
-        .post(`${endPoint}/${inputNotificationId}/send`)
+        .post(url)
         .expect(200)
         .expect((response) => {
           expect(response.body).toHaveProperty('status');
@@ -118,13 +150,18 @@ describe('Notification Controller (e2e)', () => {
 
   describe('GET /notification/pending', () => {
     beforeEach(async () => {
-      await request(app.getHttpServer()).post(endPoint).send(inputLaunchEvent).expect(201);
-      await request(app.getHttpServer()).post(endPoint).send(inputBookingEvent).expect(201);
+      // Arrange
+      await request(app.getHttpServer()).post(notificationEndPoint).send(inputLaunchEvent).expect(201);
+      await request(app.getHttpServer()).post(notificationEndPoint).send(inputBookingEvent).expect(201);
     });
 
     it('should return all pending notifications', () => {
+      // Arrange
+      const url = `${notificationEndPoint}/pending`;
+
+      // Act & Assert
       return request(app.getHttpServer())
-        .get(`${endPoint}/pending`)
+        .get(url)
         .expect(200)
         .expect((response) => {
           expect(Array.isArray(response.body)).toBe(true);
@@ -143,9 +180,9 @@ describe('Notification Controller (e2e)', () => {
     let token: string;
 
     beforeEach(async () => {
-      await request(app.getHttpServer()).post(endPoint).send(inputLaunchEvent).expect(201);
-      await request(app.getHttpServer()).post(endPoint).send(inputBookingEvent).expect(201);
-
+      // Arrange
+      await request(app.getHttpServer()).post(notificationEndPoint).send(inputLaunchEvent).expect(201);
+      await request(app.getHttpServer()).post(notificationEndPoint).send(inputBookingEvent).expect(201);
       try {
         const loginResponse = await request(authEndpoint).post('/login').send(inputLoginUser);
         token = loginResponse.body.token;
@@ -156,8 +193,12 @@ describe('Notification Controller (e2e)', () => {
     });
 
     it('should return all pending notifications for a user', () => {
+      // Arrange
+      const url = `${notificationEndPoint}/user/pending`;
+
+      // Act & Assert
       return request(app.getHttpServer())
-        .get(`${endPoint}/user/pending`)
+        .get(url)
         .set('Authorization', `Bearer ${token}`)
         .expect(200)
         .expect((response) => {
