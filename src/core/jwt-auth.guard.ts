@@ -7,12 +7,9 @@ import { JwtService } from '@nestjs/jwt';
  */
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
-  #jwtService: JwtService;
   #logger: LoggerService = new Logger(JwtAuthGuard.name);
 
-  constructor(jwtService: JwtService) {
-    this.#jwtService = jwtService;
-  }
+  constructor(private jwtService: JwtService) {}
 
   /**
    * Checks if the request can be activated by verifying the JWT token.
@@ -23,7 +20,7 @@ export class JwtAuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const token = this.#extractTokenFromHeader(request);
     if (!token) {
-      this.#logger.error('No token provided');
+      this.#logger.error('👽 No token provided');
       return false;
     }
     return this.#verifyToken(token, request);
@@ -36,11 +33,11 @@ export class JwtAuthGuard implements CanActivate {
 
   async #verifyToken(token: string, request: any): Promise<boolean> {
     try {
-      const payload = await this.#jwtService.verifyAsync(token, { secret: 'secret' });
+      const payload = await this.jwtService.verifyAsync(token);
       request.user = payload;
       return true;
     } catch (error) {
-      this.#logger.error('Invalid token', error);
+      this.#logger.error('👽 Invalid token', error);
       return false;
     }
   }
