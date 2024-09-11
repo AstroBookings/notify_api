@@ -1,32 +1,10 @@
 import { AdminModule } from '@api/admin/admin.module';
 import { NotificationModule } from '@api/notification/notification.module';
-import { NotificationEntity } from '@api/notification/services/notification.entity';
-import { TemplateEntity } from '@api/notification/services/template.entity';
-import { JwtAuthGuard } from '@core/jwt-auth.guard';
-import { LoggerMiddleware } from '@core/logger.middleware';
-import { MikroOrmModule } from '@mikro-orm/nestjs';
-import { PostgreSqlDriver } from '@mikro-orm/postgresql';
-import { MiddlewareConsumer, Module } from '@nestjs/common';
-import { JwtModule, JwtService } from '@nestjs/jwt';
-
-// Configuration for Postgres Database
-const postgresConfig = {
-  driver: PostgreSqlDriver,
-  host: 'localhost',
-  port: 5432,
-  user: 'postgres',
-  password: 'postgres',
-  dbName: 'operationsalfa',
-  entities: [NotificationEntity, TemplateEntity],
-  synchronize: false,
-};
+import { CoreModule } from '@core/core.module';
+import { Module } from '@nestjs/common';
 
 @Module({
-  imports: [MikroOrmModule.forRoot(postgresConfig), NotificationModule, JwtModule, AdminModule],
-  providers: [JwtAuthGuard, JwtService],
+  imports: [CoreModule, NotificationModule, AdminModule],
+  providers: [],
 })
-export class AppModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoggerMiddleware).forRoutes('*');
-  }
-}
+export class AppModule {}
