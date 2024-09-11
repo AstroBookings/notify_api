@@ -4,7 +4,7 @@ import { EntityManager, EntityRepository } from '@mikro-orm/core';
 import { getRepositoryToken } from '@mikro-orm/nestjs';
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { IdService } from '@shared/id.service';
+import { IdService } from '@shared/services/id.service';
 import { NotificationsBuilderFactory } from './notification-builders/notifications-builder.factory';
 import { NotificationEntity } from './notification.entity';
 import { NotificationService } from './notification.service';

@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { IdService } from './id.service';
+import { IdService } from './services/id.service';
 
 @Module({
   providers: [IdService],

@@ -3,7 +3,7 @@ import { Notification } from '@api/notification/models/notification.type';
 import { EntityManager, EntityRepository } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { IdService } from '@shared/id.service';
+import { IdService } from '@shared/services/id.service';
 import { BuildNotifications } from './notification-builders/notification.builder';
 import { NotificationsBuilderFactory } from './notification-builders/notifications-builder.factory';
 import { NotificationEntity } from './notification.entity';
