@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 
 /**
  * Guard for JWT authentication.
- * Extracts and verifies the JWT token from the request header.
+ * @description Extracts and verifies the JWT token from the request header. Adds the user to the request object.
  */
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
@@ -28,7 +28,8 @@ export class JwtAuthGuard implements CanActivate {
 
   #extractTokenFromHeader(request: any): string | undefined {
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    return type === 'Bearer' ? token : undefined;
+    if (type !== 'Bearer') return undefined;
+    return token;
   }
 
   async #verifyToken(token: string, request: any): Promise<boolean> {

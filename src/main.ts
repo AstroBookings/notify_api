@@ -6,7 +6,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
 const APP_OPTIONS = {
-  logger: new CustomLogger(),
+  logger: new CustomLogger(new ConfigService()),
 };
 const VALIDATION_PIPE_OPTIONS = {
   forbidNonWhitelisted: true,
@@ -15,10 +15,13 @@ const VALIDATION_PIPE_OPTIONS = {
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, APP_OPTIONS);
   const PORT = app.get(ConfigService).get('APP_PORT');
+  const ENV = app.get(ConfigService).get('APP_ENV');
   app.enableCors();
   app.useGlobalPipes(new ValidationPipe(VALIDATION_PIPE_OPTIONS));
   app.useGlobalFilters(new AllExceptionsFilter());
   await app.listen(PORT);
-  new Logger('System API').verbose(`🚀  initialized on port ${PORT}`);
+  const logger = new Logger('Notify API');
+  logger.warn(`🚀  initialized on port ${PORT} in ${ENV} mode`);
+  logger.warn(`Log level: ${app.get(ConfigService).get('LOG_LEVEL')}`);
 }
 bootstrap();

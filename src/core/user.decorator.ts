@@ -2,12 +2,14 @@ import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
 /**
  * Decorator to extract user information from the request.
- * @param data - Optional key to extract specific user data.
+ * @param userProperty - Optional property of the user object to extract.
  * @param ctx - The execution context.
  * @returns The user object or a specific user property.
  */
-export const User = createParamDecorator((data: string, ctx: ExecutionContext) => {
+export const User = createParamDecorator((userProperty: string, ctx: ExecutionContext) => {
   const request = ctx.switchToHttp().getRequest();
   const user = request.user;
-  return data ? user?.[data] : user;
+  if (!user) return undefined;
+  if (!userProperty) return user;
+  return user[userProperty];
 });

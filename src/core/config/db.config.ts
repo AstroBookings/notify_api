@@ -10,7 +10,7 @@ export type DbConfig = {
   debug: boolean;
 };
 
-export default registerAs(
+export const DB_CONFIG = registerAs(
   'db',
   (): DbConfig => ({
     type: process.env.DB_TYPE || 'postgresql',
