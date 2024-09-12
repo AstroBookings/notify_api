@@ -1,4 +1,5 @@
-import { Controller, HttpCode, Logger, Post } from '@nestjs/common';
+import { ApiKeyGuard } from '@core/guards/api-key.guard';
+import { Controller, HttpCode, Logger, Post, UseGuards } from '@nestjs/common';
 import { AdminService } from './admin.service';
 
 /**
@@ -6,6 +7,7 @@ import { AdminService } from './admin.service';
  * @description Controller for administrative endpoints
  */
 @Controller('api/admin')
+@UseGuards(ApiKeyGuard)
 export class AdminController {
   readonly #logger = new Logger(AdminController.name);
 
@@ -20,7 +22,7 @@ export class AdminController {
   @Post('regenerate-db')
   @HttpCode(200)
   async regenerateDatabase(): Promise<{ status: string; message: string }> {
-    this.#logger.verbose('� Regenerating database');
+    this.#logger.verbose('🤖 Regenerating database');
     return this.adminService.regenerateDatabase();
   }
 

@@ -5,6 +5,5 @@ import { Module } from '@nestjs/common';
 
 @Module({
   imports: [CoreModule, NotificationModule, AdminModule],
-  providers: [],
 })
 export class AppModule {}

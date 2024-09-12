@@ -12,7 +12,7 @@ export class AdminService {
   readonly #connection = this.em.getConnection();
 
   constructor(private readonly em: EntityManager) {
-    this.#logger.log('🚀 AdminService initialized');
+    this.#logger.verbose('🚀 AdminService initialized');
   }
 
   /**
@@ -22,7 +22,7 @@ export class AdminService {
   async regenerateDatabase(): Promise<{ status: string; message: string }> {
     try {
       await this.#executeDatabaseScripts();
-      return this.#createSuccessResponse('Database regenerated successfully');
+      return { status: 'success', message: 'Database regenerated successfully' };
     } catch (error) {
       return this.#handleDatabaseError(error);
     }
@@ -33,24 +33,22 @@ export class AdminService {
    * @returns Object with the operation status and message
    */
   async adminTest(): Promise<{ status: string; message: string }> {
-    return this.#createSuccessResponse('Admin test endpoint is working correctly');
+    return { status: 'success', message: 'Admin test endpoint is working correctly' };
   }
 
   async #executeDatabaseScripts(): Promise<void> {
     await this.#connection.execute(SQL_SCRIPTS.CLEAR_DATABASE);
-    this.#logger.log('🤖 Database cleared');
+    this.#logger.verbose('🤖 Database cleared');
     await this.#connection.execute(SQL_SCRIPTS.CREATE_DATABASE);
-    this.#logger.log('🤖 Database created');
+    this.#logger.verbose('🤖 Database created');
     await this.#connection.execute(SQL_SCRIPTS.SEED_DATABASE);
-    this.#logger.log('🤖 Database seeded');
+    this.#logger.verbose('🤖 Database seeded');
   }
 
-  #createSuccessResponse(message: string): { status: string; message: string } {
-    return { status: 'success', message };
-  }
+  // Removed private method #createSuccessResponse as per instructions
 
   #handleDatabaseError(error: Error): { status: string; message: string } {
-    this.#logger.error('👽 Error regenerating database', error.stack);
+    this.#logger.debug('👽 Error regenerating database', error.stack);
     throw new Error('Failed to regenerate database');
   }
 }

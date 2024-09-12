@@ -10,6 +10,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { jwtConfigFactory } from './config/jwt.factory';
 import { mikroOrmConfigFactory } from './config/mikro-orm.factory';
+import { ApiKeyGuard } from './guards/api-key.guard';
 
 const envFilePath = process.env.NODE_ENV === 'production' ? '.env' : '.env.development';
 
@@ -32,8 +33,8 @@ const envFilePath = process.env.NODE_ENV === 'production' ? '.env' : '.env.devel
       useFactory: jwtConfigFactory,
     }),
   ],
-  providers: [JwtAuthGuard, JwtService, CustomLogger],
-  exports: [CustomLogger],
+  providers: [JwtAuthGuard, JwtService, CustomLogger, ApiKeyGuard],
+  exports: [CustomLogger, ApiKeyGuard],
 })
 export class CoreModule {
   configure(consumer: MiddlewareConsumer) {

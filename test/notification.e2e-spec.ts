@@ -1,11 +1,13 @@
 import { EventDto } from '@api/notification/models/event.dto';
 import { INestApplication } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '@src/app.module';
 import * as request from 'supertest';
 
 describe('Notification Controller (e2e)', () => {
   let app: INestApplication;
+  let apiKey: string;
   const notificationEndPoint: string = '/api/notification';
   const adminEndPoint: string = '/api/admin';
   const authEndpoint = 'http://localhost:3000/api/authentication';
@@ -38,6 +40,7 @@ describe('Notification Controller (e2e)', () => {
 
   beforeAll(async () => {
     // Arrange
+
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     })
@@ -45,11 +48,18 @@ describe('Notification Controller (e2e)', () => {
       .compile();
 
     app = moduleFixture.createNestApplication();
+    const configService = app.get(ConfigService);
+    apiKey = configService.get<string>('API_KEY');
+
+    if (!apiKey) {
+      throw new Error('API_KEY is not configured in the environment');
+    }
     await app.init();
 
     // Act
     await request(app.getHttpServer())
       .post(`${adminEndPoint}/regenerate-db`)
+      .set('X-API-Key', apiKey)
       .expect(200)
       .expect((response) => {
         // Assert
