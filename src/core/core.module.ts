@@ -8,9 +8,9 @@ import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule, JwtService } from '@nestjs/jwt';
+import { ApiKeyGuard } from './api-key.guard';
 import { jwtConfigFactory } from './config/jwt.factory';
 import { mikroOrmConfigFactory } from './config/mikro-orm.factory';
-import { ApiKeyGuard } from './guards/api-key.guard';
 
 const envFilePath = process.env.NODE_ENV === 'production' ? '.env' : '.env.development';
 
