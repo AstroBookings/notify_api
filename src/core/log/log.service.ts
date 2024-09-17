@@ -2,14 +2,16 @@ import { Injectable, LoggerService, LogLevel } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as chalk from 'chalk';
 
+/**
+ * Custom Logger Service
+ * @description It uses chalk to colorize the log messages.
+ */
 @Injectable()
-export class CustomLogger implements LoggerService {
-  private readonly logLevel: LogLevel;
+export class LogService implements LoggerService {
+  private readonly logLevel: LogLevel = this.configService.get<LogLevel>('LOG_LEVEL');
   private readonly logLevels: LogLevel[] = ['fatal', 'error', 'warn', 'log', 'debug', 'verbose'];
 
-  constructor(private configService: ConfigService) {
-    this.logLevel = this.configService.get<LogLevel>('LOG_LEVEL') || 'log';
-  }
+  constructor(private configService: ConfigService) {}
 
   #getTimestamp(): string {
     return new Date().toTimeString().split(' ')[0];

@@ -2,12 +2,12 @@ import { CanActivate, ExecutionContext, Injectable, Logger, LoggerService } from
 import { JwtService } from '@nestjs/jwt';
 
 /**
- * Guard for JWT authentication.
+ * Guard for JWT token authentication.
  * @description Extracts and verifies the JWT token from the request header. Adds the user to the request object.
  */
 @Injectable()
-export class JwtAuthGuard implements CanActivate {
-  #logger: LoggerService = new Logger(JwtAuthGuard.name);
+export class AuthJwtGuard implements CanActivate {
+  #logger: LoggerService = new Logger(AuthJwtGuard.name);
 
   constructor(private jwtService: JwtService) {}
 

@@ -1,5 +1,5 @@
-import { ApiKeyGuard } from '@core/guards/api-key.guard';
 import { Controller, HttpCode, Logger, Post, UseGuards } from '@nestjs/common';
+import { AuthApiKeyGuard } from '@shared/auth/auth-api-key.guard';
 import { AdminService } from './admin.service';
 
 /**
@@ -7,7 +7,7 @@ import { AdminService } from './admin.service';
  * @description Controller for administrative endpoints
  */
 @Controller('api/admin')
-@UseGuards(ApiKeyGuard)
+@UseGuards(AuthApiKeyGuard)
 export class AdminController {
   readonly #logger = new Logger(AdminController.name);
 

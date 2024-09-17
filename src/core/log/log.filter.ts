@@ -12,12 +12,12 @@ type source = {
 };
 
 /**
- * Filter that catches all exceptions thrown in the application.
- * It logs the error and sends a formatted response to the client.
+ * Filter that catches and logs all exceptions thrown in the application.
+ * @description It also sends a formatted response to the client.
  */
 @Catch(HttpException)
-export class AllExceptionsFilter<T extends HttpException> implements ExceptionFilter {
-  #logger: Logger = new Logger(AllExceptionsFilter.name);
+export class LogFilter<T extends HttpException> implements ExceptionFilter {
+  #logger: Logger = new Logger(LogFilter.name);
 
   /**
    * Catches the exception and processes it.
@@ -48,10 +48,10 @@ export class AllExceptionsFilter<T extends HttpException> implements ExceptionFi
 
   #logError(exception: T, request: Request): void {
     const { method, originalUrl }: source = request;
-    this.#logger.error(`👽 ${method}:- ${originalUrl}`, AllExceptionsFilter.name);
+    this.#logger.error(`👽 ${method}:- ${originalUrl}`, LogFilter.name);
     const nodeEnv: string | undefined = process.env.NODE_ENV;
     if (nodeEnv !== 'production') {
-      this.#logger.debug(JSON.stringify(exception), AllExceptionsFilter.name);
+      this.#logger.debug(JSON.stringify(exception), LogFilter.name);
     }
   }
 

@@ -4,7 +4,6 @@ import { EntityManager, EntityRepository } from '@mikro-orm/core';
 import { getRepositoryToken } from '@mikro-orm/nestjs';
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { IdService } from '@shared/services/id.service';
 import { NotificationsBuilderFactory } from './notification-builders/notifications-builder.factory';
 import { NotificationEntity } from './notification.entity';
 import { NotificationService } from './notification.service';
@@ -15,7 +14,6 @@ describe('NotificationService', () => {
   let mockNotificationRepository: Partial<jest.Mocked<EntityRepository<NotificationEntity>>>;
   let mockTemplateRepository: Partial<jest.Mocked<EntityRepository<TemplateEntity>>>;
   let mockEntityManager: Partial<jest.Mocked<EntityManager>>;
-  let mockIdService: Partial<jest.Mocked<IdService>>;
 
   const mockId = 'notif_1';
   const mockEvent: EventDto = {
@@ -59,9 +57,6 @@ describe('NotificationService', () => {
     mockEntityManager = {
       flush: jest.fn(),
     };
-    mockIdService = {
-      generateId: jest.fn().mockReturnValue(mockId),
-    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -77,10 +72,6 @@ describe('NotificationService', () => {
         {
           provide: EntityManager,
           useValue: mockEntityManager,
-        },
-        {
-          provide: IdService,
-          useValue: mockIdService,
         },
       ],
     }).compile();

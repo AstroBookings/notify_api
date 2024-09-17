@@ -3,7 +3,7 @@ import { Notification } from '@api/notification/models/notification.type';
 import { EntityManager, EntityRepository } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { IdService } from '@shared/services/id.service';
+import { generateId } from '@shared/utils/id.util';
 import { BuildNotifications } from './notification-builders/notification.builder';
 import { NotificationsBuilderFactory } from './notification-builders/notifications-builder.factory';
 import { NotificationEntity } from './notification.entity';
@@ -19,7 +19,6 @@ export class NotificationService {
     @InjectRepository(TemplateEntity)
     private readonly templateRepository: EntityRepository<TemplateEntity>,
     private readonly entityManager: EntityManager,
-    private readonly idService: IdService,
   ) {
     this.#logger.verbose('🚀  initialized');
   }
@@ -39,7 +38,7 @@ export class NotificationService {
     const notifications: NotificationEntity[] = await notificationBuilder.build();
     await Promise.all(
       notifications.map(async (notification: NotificationEntity) => {
-        notification.id = this.idService.generateId();
+        notification.id = generateId();
         await this.notificationRepository.insert(notification);
       }),
     );

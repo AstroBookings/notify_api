@@ -1,6 +1,6 @@
 import { Body, Controller, Get, HttpCode, Logger, Param, Post, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from '../../core/jwt-auth.guard';
-import { User } from '../../core/user.decorator';
+import { AuthJwtGuard } from '@shared/auth/auth-jwt.guard';
+import { AuthUser } from '@shared/auth/auth-user.decorator';
 import { EventDto } from './models/event.dto';
 import { Notification } from './models/notification.type';
 import { NotificationService } from './services/notification.service';
@@ -48,8 +48,8 @@ export class NotificationController {
    * @returns An array of all pending notifications.
    */
   @Get('user/pending')
-  @UseGuards(JwtAuthGuard)
-  async getUserPendingNotifications(@User('id') userId: string): Promise<Notification[]> {
+  @UseGuards(AuthJwtGuard)
+  async getUserPendingNotifications(@AuthUser('id') userId: string): Promise<Notification[]> {
     this.#logger.verbose(`🤖 Fetching and marking as read top 10 pending notifications for user: ${userId}`);
     return await this.notificationService.getUserPendingNotifications(userId);
   }
