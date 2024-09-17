@@ -11,6 +11,7 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "paths": {
+      "@abs/auth/*": ["src/shared/auth/*"],
       "@api/*": ["src/api/*"],
       "@core/*": ["src/core/*"],
       "@shared/*": ["src/shared/*"],

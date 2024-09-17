@@ -3,8 +3,7 @@ import { Entity, ManyToOne, PrimaryKey, Property } from '@mikro-orm/core';
 import { TemplateEntity } from './template.entity';
 
 /**
- * Notification entity
- * @description Entity for read/write on notifications table
+ * Entity mapper for the notifications table
  */
 @Entity({ tableName: 'notifications' })
 export class NotificationEntity {
@@ -62,9 +61,3 @@ export class NotificationEntity {
   @ManyToOne(() => TemplateEntity)
   template!: TemplateEntity;
 }
-
-/**
- * Notification entity data type
- * @description Type definition for the Notification entity
- */
-export type NotificationEntityData = Omit<NotificationEntity, 'id'>;

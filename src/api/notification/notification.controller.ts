@@ -1,8 +1,8 @@
+import { AuthJwtGuard } from '@abs/auth/auth-jwt.guard';
+import { AuthUser } from '@abs/auth/auth-user.decorator';
 import { Body, Controller, Get, HttpCode, Logger, Param, Post, UseGuards } from '@nestjs/common';
-import { AuthJwtGuard } from '@shared/auth/auth-jwt.guard';
-import { AuthUser } from '@shared/auth/auth-user.decorator';
 import { EventDto } from './models/event.dto';
-import { Notification } from './models/notification.type';
+import { NotificationDto } from './models/notification.dto';
 import { NotificationService } from './services/notification.service';
 
 /**
@@ -28,7 +28,7 @@ export class NotificationController {
    * @returns The notifications that was created.
    */
   @Post()
-  async saveNotifications(@Body() event: EventDto): Promise<Notification[]> {
+  async saveNotifications(@Body() event: EventDto): Promise<NotificationDto[]> {
     this.#logger.verbose(`🤖 Saving notification for event: ${event.name}`);
     return await this.notificationService.saveNotifications(event);
   }
@@ -38,7 +38,7 @@ export class NotificationController {
    * @returns An array of all pending notifications.
    */
   @Get('pending')
-  async getPendingNotifications(): Promise<Notification[]> {
+  async getPendingNotifications(): Promise<NotificationDto[]> {
     this.#logger.verbose('🤖 Fetching all pending notifications');
     return await this.notificationService.getPendingNotifications();
   }
@@ -49,14 +49,14 @@ export class NotificationController {
    */
   @Get('user/pending')
   @UseGuards(AuthJwtGuard)
-  async getUserPendingNotifications(@AuthUser('id') userId: string): Promise<Notification[]> {
+  async getUserPendingNotifications(@AuthUser('id') userId: string): Promise<NotificationDto[]> {
     this.#logger.verbose(`🤖 Fetching and marking as read top 10 pending notifications for user: ${userId}`);
     return await this.notificationService.getUserPendingNotifications(userId);
   }
 
   @Post(':id/send')
   @HttpCode(200)
-  async sendNotification(@Param('id') id: string): Promise<Notification> {
+  async sendNotification(@Param('id') id: string): Promise<NotificationDto> {
     this.#logger.verbose(`🤖 Sending notification with id: ${id}`);
     try {
       return this.notificationService.sendNotification(id);

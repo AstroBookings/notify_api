@@ -1,6 +1,6 @@
 import { JwtModule } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Notification } from './models/notification.type';
+import { NotificationDto } from './models/notification.dto';
 import { NotificationController } from './notification.controller';
 import { NotificationService } from './services/notification.service';
 
@@ -35,7 +35,7 @@ describe('NotificationController', () => {
 
   describe('getPendingNotifications', () => {
     it('should return an array of pending notifications', async () => {
-      const result: Notification[] = [
+      const result: NotificationDto[] = [
         { id: '1', userId: 'user1', subject: 'Test 1', message: 'Message 1', status: 'pending' },
         { id: '2', userId: 'user2', subject: 'Test 2', message: 'Message 2', status: 'pending' },
       ];
@@ -46,7 +46,7 @@ describe('NotificationController', () => {
     });
 
     it('should return an empty array when no pending notifications', async () => {
-      const result: Notification[] = [];
+      const result: NotificationDto[] = [];
       jest.spyOn(service, 'getPendingNotifications').mockResolvedValue(result);
 
       expect(await controller.getPendingNotifications()).toEqual([]);
@@ -63,7 +63,7 @@ describe('NotificationController', () => {
 
   describe('sendNotification', () => {
     it('should call notificationService.sendNotification and return the result', async () => {
-      const mockNotification: Notification = {
+      const mockNotification: NotificationDto = {
         id: '123',
         userId: 'user1',
         subject: 'Test Subject',
@@ -83,7 +83,7 @@ describe('NotificationController', () => {
   describe('getUserPendingNotifications', () => {
     it('should return top 10 pending notifications for user', async () => {
       const userId = 'user123';
-      const expectedNotifications: Notification[] = [
+      const expectedNotifications: NotificationDto[] = [
         { id: '1', userId, subject: 'Test', message: 'Test message', status: 'pending' },
       ];
       jest.spyOn(service, 'getUserPendingNotifications').mockResolvedValue(expectedNotifications);

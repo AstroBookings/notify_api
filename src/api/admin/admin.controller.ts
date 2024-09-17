@@ -1,5 +1,5 @@
+import { AuthApiKeyGuard } from '@abs/auth/auth-api-key.guard';
 import { Controller, HttpCode, Logger, Post, UseGuards } from '@nestjs/common';
-import { AuthApiKeyGuard } from '@shared/auth/auth-api-key.guard';
 import { AdminService } from './admin.service';
 
 /**
