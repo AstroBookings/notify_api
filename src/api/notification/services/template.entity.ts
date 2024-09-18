@@ -35,5 +35,5 @@ export class TemplateEntity {
    * The notifications associated with the template
    */
   @OneToMany(() => NotificationEntity, (notification) => notification.template)
-  notifications!: NotificationEntity[];
+  notifications?: NotificationEntity[];
 }
