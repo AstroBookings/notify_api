@@ -2,16 +2,31 @@ import { NotificationStatus } from './notification-status.enum';
 
 /**
  * The return Notification type
- * @property {string} id - The notification id
- * @property {string} userId - The user id
- * @property {string} subject - The subject
- * @property {string} message - The message
- * @property {NotificationStatus} status - The status
  */
-export type NotificationDto = {
+export class NotificationDto {
+  /**
+   * The notification id
+   * @example 'notif_1'
+   */
   id: string;
+  /**
+   * The user id
+   * @example 'usr_a1'
+   */
   userId: string;
+  /**
+   * The subject
+   * @example 'Welcome to the platform'
+   */
   subject: string;
+  /**
+   * The message
+   * @example 'Hello, you have a new message'
+   */
   message: string;
+  /**
+   * The status. Could be pending, read, sent or failed
+   * @example 'pending'
+   */
   status: NotificationStatus;
-};
+}

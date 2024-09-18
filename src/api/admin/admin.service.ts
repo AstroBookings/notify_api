@@ -1,6 +1,7 @@
 import { EntityManager } from '@mikro-orm/core';
 import { Injectable, Logger } from '@nestjs/common';
-import { SQL_SCRIPTS } from './admin.constants';
+import { AdminResponse } from './admin-response.dto';
+import { SQL_SCRIPTS } from './admin.config';
 
 /**
  * AdminService
@@ -19,7 +20,7 @@ export class AdminService {
    * Regenerates the database by executing SQL scripts
    * @returns Object with the operation status and message
    */
-  async regenerateDatabase(): Promise<{ status: string; message: string }> {
+  async regenerateDatabase(): Promise<AdminResponse> {
     try {
       await this.#executeDatabaseScripts();
       return { status: 'success', message: 'Database regenerated successfully' };
@@ -32,7 +33,7 @@ export class AdminService {
    * Test method to verify the service functionality
    * @returns Object with the operation status and message
    */
-  async adminTest(): Promise<{ status: string; message: string }> {
+  async adminTest(): Promise<AdminResponse> {
     return { status: 'success', message: 'Admin test endpoint is working correctly' };
   }
 
@@ -47,7 +48,7 @@ export class AdminService {
 
   // Removed private method #createSuccessResponse as per instructions
 
-  #handleDatabaseError(error: Error): { status: string; message: string } {
+  #handleDatabaseError(error: Error): AdminResponse {
     this.#logger.debug('👽 Error regenerating database', error.stack);
     throw new Error('Failed to regenerate database');
   }

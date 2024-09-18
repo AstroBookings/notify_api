@@ -11,7 +11,7 @@ const dbConfig = registerAs('mikroORM', () => ({
   port: Number(process.env.DB_PORT) || 5432,
   user: process.env.DB_USER || 'postgres',
   password: process.env.DB_PASSWORD || 'postgres',
-  dbName: process.env.DB_DB_NAME || 'operationsalfa',
+  dbName: process.env.DB_DB_NAME || 'database',
 }));
 
 /**

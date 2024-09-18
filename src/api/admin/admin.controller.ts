@@ -1,10 +1,10 @@
 import { AuthApiKeyGuard } from '@abs/auth/auth-api-key.guard';
 import { Controller, HttpCode, Logger, Post, UseGuards } from '@nestjs/common';
+import { AdminResponse } from './admin-response.dto';
 import { AdminService } from './admin.service';
 
 /**
- * Admin Controller
- * @description Controller for administrative endpoints
+ * Admin Controller for administrative endpoints
  */
 @Controller('api/admin')
 @UseGuards(AuthApiKeyGuard)
@@ -17,22 +17,24 @@ export class AdminController {
 
   /**
    * Regenerates the database
-   * @returns Object with the operation status and message
+   *
+   * 📦 Returns an object with the operation status and message
    */
   @Post('regenerate-db')
   @HttpCode(200)
-  async regenerateDatabase(): Promise<{ status: string; message: string }> {
+  async regenerateDatabase(): Promise<AdminResponse> {
     this.#logger.verbose('🤖 Regenerating database');
     return this.adminService.regenerateDatabase();
   }
 
   /**
    * Test endpoint to verify the admin module functionality
-   * @returns Object with the operation status and message
+   *
+   * 📦 Returns an object with the operation status and message
    */
   @Post('test')
   @HttpCode(200)
-  async adminTest(): Promise<{ status: string; message: string }> {
+  async adminTest(): Promise<AdminResponse> {
     this.#logger.verbose('🤖 Testing admin module');
     return this.adminService.adminTest();
   }

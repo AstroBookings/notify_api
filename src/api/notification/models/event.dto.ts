@@ -1,17 +1,21 @@
-import { IsNotEmpty, IsObject, IsString } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 import { TemplateEvent } from './template-event.enum';
 /**
  * Event DTO with something to notify
  * @description Input data to notify something
- * @example { "name": "user_created", "data": { "userId": "123", "userName": "John Doe" } }
- * @property {TemplateEvent} name - The template name
- * @property {object} data - The data to notify
  */
 export class EventDto {
+  /**
+   * The template name
+   * @example 'launch_scheduled'
+   */
   @IsString()
   @IsNotEmpty()
   name: TemplateEvent;
-
-  @IsObject()
+  /**
+   * The data to notify
+   * @example "lnch_1"
+   */
+  @IsString()
   data: string;
 }

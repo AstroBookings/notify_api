@@ -60,7 +60,7 @@ export class LogService implements LoggerService {
     if (!this.#shouldLog('error')) return;
     console.error(this.#formatMessage(message, context, 'error'));
     if (trace) {
-      this.debug(trace, context);
+      this.debug(`trace: ${trace}`, context);
     }
   }
 
